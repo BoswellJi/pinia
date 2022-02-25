@@ -26,6 +26,7 @@ export function createPinia(): Pinia {
       setActivePinia(pinia)
       if (!isVue2) {
         pinia._a = app
+        // 将pinia实例提供给子组件注入
         app.provide(piniaSymbol, pinia)
         app.config.globalProperties.$pinia = pinia
         /* istanbul ignore else */
@@ -36,7 +37,7 @@ export function createPinia(): Pinia {
         toBeInstalled = []
       }
     },
-
+    // pinia的插件安装之后，再安装pinia自身
     use(plugin) {
       if (!this._a && !isVue2) {
         toBeInstalled.push(plugin)
@@ -45,13 +46,16 @@ export function createPinia(): Pinia {
       }
       return this
     },
-
+    // pinia的插件容器
     _p,
     // it's actually undefined here
-    // @ts-expect-error
+    // @ts-expect-error 当前app实例
     _a: null,
+    // 副作用作用域
     _e: scope,
+    // store容器
     _s: new Map<string, StoreGeneric>(),
+    // 响应式 ref({}) 中存储每个store的state
     state,
   })
 

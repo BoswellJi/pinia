@@ -42,7 +42,7 @@
   </p>
 
   <hr />
-
+ 
   <p><code>counter.$state</code>:</p>
 
   <pre>{{ counter.$state }}</pre>

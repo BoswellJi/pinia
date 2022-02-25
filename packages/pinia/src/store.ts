@@ -122,6 +122,7 @@ function createOptionsStore<
   function setup() {
     if (!initialState && (!__DEV__ || !hot)) {
       /* istanbul ignore if */
+      // 将状态添加到store容器中
       if (isVue2) {
         set(pinia.state.value, id, state ? state() : {})
       } else {
@@ -851,6 +852,7 @@ export function defineStore(
   }
 
   function useStore(pinia?: Pinia | null, hot?: StoreGeneric): StoreGeneric {
+    // 获取当前组件实例
     const currentInstance = getCurrentInstance()
     pinia =
       // in test mode, ignore the argument provided as we can always retrieve a
@@ -867,11 +869,12 @@ export function defineStore(
           `This will fail in production.`
       )
     }
-
+    // 当前的pinia实例
     pinia = activePinia!
 
     if (!pinia._s.has(id)) {
       // creating the store registers it in `pinia._s`
+
       if (isSetupStore) {
         createSetupStore(id, setup, options, pinia)
       } else {
