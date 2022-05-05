@@ -7,7 +7,7 @@ Pinia stores can be fully extended thanks to a low level API. Here is a list of 
 - Add new methods to stores
 - Wrap existing methods
 - Change or even cancel actions
-- Implement side effects like local storage
+- Implement side effects like [Local Storage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
 - Apply **only** to specific stores
 
 Plugins are added to the pinia instance with `pinia.use()`. The simplest example is adding a static property to all stores by returning an object:
@@ -208,7 +208,7 @@ The plugin can then read that option to wrap actions and replace the original on
 
 ```js
 // use any debounce library
-import debounce from 'lodash/debunce'
+import debounce from 'lodash/debounce'
 
 pinia.use(({ options, store }) => {
   if (options.debounce) {
@@ -284,9 +284,9 @@ pinia.use(({ store }) => {
   store.hello = 'Hola'
   store.hello = ref('Hola')
 
-  store.number = Math.random()
+  store.simpleNumber = Math.random()
   // @ts-expect-error: we haven't typed this correctly
-  store.number = ref(Math.random())
+  store.simpleNumber = ref(Math.random())
 })
 ```
 
@@ -371,12 +371,14 @@ function MyPiniaPlugin({ store }: PiniaPluginContext) {
     console.log(`[🍍 ${mutation.storeId}]: ${mutation.type}.`)
   })
 
+  // Note this has to be typed if you are using TS
   return { creationTime: new Date() }
 }
 
-const myPlugin: Plugin = ({ pinia }) {
-  pinia.use(MyPiniaPlugin);
+const myPlugin: Plugin = ({ $pinia }) => {
+  $pinia.use(MyPiniaPlugin)
 }
+
 export default myPlugin
 ```
 

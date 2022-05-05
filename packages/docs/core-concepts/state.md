@@ -49,6 +49,11 @@ store.$reset()
 
 ### Usage with the Options API
 
+<VueSchoolLink
+  href="https://vueschool.io/lessons/access-pinia-state-in-the-options-api"
+  title="Access Pinia State via the Options API"
+/>
+
 For the following examples, you can assume the following store was created:
 
 ```js
@@ -63,29 +68,6 @@ const useCounterStore = defineStore('counterStore', {
   })
 })
 ```
-
-### With `setup()`
-
-While Composition API is not for everyone, the `setup()` hook can make using Pinia easier to work with in the Options API. No extra map helper functions needed!
-
-```js
-import { useCounterStore } from '../stores/counterStore'
-
-export default {
-  setup() {
-    const counterStore = useCounterStore()
-
-    return { counterStore }
-  },
-  computed: {
-    tripleCounter() {
-      return this.counterStore.counter * 3
-    },
-  },
-}
-```
-
-### Without `setup()`
 
 If you are not using the Composition API, and you are using `computed`, `methods`, ..., you can use the `mapState()` helper to map state properties as readonly computed properties:
 

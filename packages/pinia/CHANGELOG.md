@@ -1,3 +1,28 @@
+## [2.0.13](https://github.com/vuejs/pinia/compare/pinia@2.0.12...pinia@2.0.13) (2022-03-31)
+
+### Bug Fixes
+
+- avoid prototype pollution ([e4858f9](https://github.com/vuejs/pinia/commit/e4858f9d5f447ba6162ca9f2472608a8bac3eca7))
+- **vue2:** use toRefs in storeToRefs ([0f24ad2](https://github.com/vuejs/pinia/commit/0f24ad27f16bd473e20a8671cd24877d2603cbcf)), closes [#852](https://github.com/vuejs/pinia/issues/852)
+
+### Features
+
+- update devtools-api ([5334222](https://github.com/vuejs/pinia/commit/53342222c536b0dc122f491525ca1c5ad8d25a05))
+
+## [2.0.12](https://github.com/vuejs/pinia/compare/pinia@2.0.11...pinia@2.0.12) (2022-03-14)
+
+### Bug Fixes
+
+- **devtools:** avoid error in getters ([a64c19d](https://github.com/vuejs/pinia/commit/a64c19d33ed60dac1b1c1f98cf2055615a45f6d8)), closes [#1062](https://github.com/vuejs/pinia/issues/1062)
+- **types:** exclude internal properties from store ([f8f944f](https://github.com/vuejs/pinia/commit/f8f944fcdd4411c2f84297786955c4c157fbeebe)), closes [#1013](https://github.com/vuejs/pinia/issues/1013)
+
+### Features
+
+- **devtools:** allow disable logs ([43f690f](https://github.com/vuejs/pinia/commit/43f690f10c35b2c309cd091225379afc0479ad93))
+- **devtools:** use api.now() ([836ab86](https://github.com/vuejs/pinia/commit/836ab865b48f09df5dc848e69ad14597cbaaf21e))
+- up vue-devtools ([e8e5f28](https://github.com/vuejs/pinia/commit/e8e5f28e08a37ed1d30e680df95ce6f3307775ed))
+- **warn:** avoid vue 2 bug storeToRefs() ([f692fdf](https://github.com/vuejs/pinia/commit/f692fdfe623389f3d85c90e5a923c5cfb15c0b0b)), closes [#852](https://github.com/vuejs/pinia/issues/852)
+
 ## [2.0.11](https://github.com/vuejs/pinia/compare/pinia@2.0.10...pinia@2.0.11) (2022-01-30)
 
 ### Bug Fixes

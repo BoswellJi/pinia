@@ -33,7 +33,7 @@ export const useStore = defineStore('main', {
     // the return type **must** be explicitly set
     doublePlusOne(): number {
       // autocompletion and typings for the whole store ✨
-      return this.counter * 2 + 1
+      return this.doubleCount + 1
     },
   },
 })
@@ -166,6 +166,11 @@ export default {
 
 ## Usage with the Options API
 
+<VueSchoolLink
+  href="https://vueschool.io/lessons/access-pinia-getters-in-the-options-api"
+  title="Access Pinia Getters via the Options API"
+/>
+
 For the following examples, you can assume the following store was created:
 
 ```js
@@ -201,7 +206,7 @@ export default {
   },
   computed: {
     quadrupleCounter() {
-      return counterStore.doubleCounter * 2
+      return this.counterStore.doubleCounter * 2
     },
   },
 }

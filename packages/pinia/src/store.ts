@@ -59,11 +59,13 @@ function mergeReactiveObjects<T extends StateTree>(
 ): T {
   // no need to go through symbols because they cannot be serialized anyway
   for (const key in patchToApply) {
+    if (!patchToApply.hasOwnProperty(key)) continue
     const subPatch = patchToApply[key]
     const targetValue = target[key]
     if (
       isPlainObject(targetValue) &&
       isPlainObject(subPatch) &&
+      target.hasOwnProperty(key) &&
       !isRef(subPatch) &&
       !isReactive(subPatch)
     ) {
@@ -199,6 +201,7 @@ function createSetupStore<
   )
 
   /* istanbul ignore if */
+  // @ts-expect-error: active is an internal property
   if (__DEV__ && !pinia._e.active) {
     throw new Error('Pinia destroyed')
   }
@@ -250,6 +253,9 @@ function createSetupStore<
 
   const hotState = ref({} as S)
 
+  // avoid triggering too many listeners
+  // https://github.com/vuejs/pinia/issues/1129
+  let activeListener: Symbol | undefined
   function $patch(stateMutation: (state: UnwrapRef<S>) => void): void
   function $patch(partialState: _DeepPartial<UnwrapRef<S>>): void
   function $patch(
@@ -280,8 +286,11 @@ function createSetupStore<
         events: debuggerEvents as DebuggerEvent[],
       }
     }
+    const myListenerId = (activeListener = Symbol())
     nextTick().then(() => {
-      isListening = true
+      if (activeListener === myListenerId) {
+        isListening = true
+      }
     })
     isSyncListening = true
     // because we paused the watcher, we need to manually call the subscriptions

@@ -76,10 +76,11 @@ import { useAuthStore } from './auth-store'
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
+    preferences: null,
     // ...
   }),
   actions: {
-    async fetchUserPreferences(preferences) {
+    async fetchUserPreferences() {
       const auth = useAuthStore()
       if (auth.isAuthenticated) {
         this.preferences = await fetchPreferences()
@@ -106,6 +107,11 @@ export default {
 ```
 
 ## Usage with the Options API
+
+<VueSchoolLink
+  href="https://vueschool.io/lessons/access-pinia-actions-in-the-options-api"
+  title="Access Pinia Getters via the Options API"
+/>
 
 For the following examples, you can assume the following store was created:
 
@@ -142,8 +148,8 @@ export default {
   },
   methods: {
     incrementAndPrint() {
-      counterStore.increment()
-      console.log('New Count:', counterStore.count)
+      this.counterStore.increment()
+      console.log('New Count:', this.counterStore.count)
     },
   },
 }
