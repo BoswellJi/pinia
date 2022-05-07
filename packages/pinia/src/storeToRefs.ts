@@ -33,15 +33,15 @@ export function storeToRefs<SS extends StoreGeneric>(
 
     const refs = {} as ToRefs<
       StoreState<SS> &
-        StoreGetters<SS> &
-        PiniaCustomStateProperties<StoreState<SS>>
+      StoreGetters<SS> &
+      PiniaCustomStateProperties<StoreState<SS>>
     >
     for (const key in store) {
       const value = store[key]
       if (isRef(value) || isReactive(value)) {
         // @ts-expect-error: the key is state or getter
         refs[key] =
-          // ---
+          // --- 将store的key的响应式属性添加到refs对象上
           toRef(store, key)
       }
     }

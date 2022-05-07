@@ -12,11 +12,12 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '../stores/user'
-import { useCartStore } from '../stores/cart'
-import { useCounter } from '../stores/counter'
+  import { mapStores } from 'pinia'
+  import { useUserStore } from '../stores/user'
+  import { useCartStore } from '../stores/cart'
+  import { useCounter } from '../stores/counter'
 
-const userStore = useUserStore()
-const cartStore = useCartStore()
-const counterStore = useCounter()
+  const userStore = useUserStore()
+  const cartStore = useCartStore()
+  const counterStore = useCounter()
 </script>

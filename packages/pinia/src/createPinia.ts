@@ -5,10 +5,12 @@ import { IS_CLIENT } from './env'
 import { StateTree, StoreGeneric } from './types'
 
 /**
+ * 创建给应用使用的Pinia实例
  * Creates a Pinia instance to be used by the application
  */
 export function createPinia(): Pinia {
   const scope = effectScope(true)
+  // 注意：是否vue3 ssr有类似的东西，这里我们检查一个状态的window对象并且直接设置它
   // NOTE: here we could check the window object for a state and directly set it
   // if there is anything like it with Vue 3 SSR
   const state = scope.run<Ref<Record<string, StateTree>>>(() =>
@@ -20,24 +22,31 @@ export function createPinia(): Pinia {
   let toBeInstalled: PiniaPlugin[] = []
 
   const pinia: Pinia = markRaw({
+    // 将pinia安装给vue应用
     install(app: App) {
+      // 安装pinia的插件后，允许在组件setup之外调用useStore方法
       // this allows calling useStore() outside of a component setup after
       // installing pinia's plugin
       setActivePinia(pinia)
+      // vue3处理
       if (!isVue2) {
+        // vue应用实例
         pinia._a = app
-        // 将pinia实例提供给子组件注入
+        // 注册pinia实例
         app.provide(piniaSymbol, pinia)
+        // 将pinia实例添加到vue应用的全局属性上`$pinia`
         app.config.globalProperties.$pinia = pinia
         /* istanbul ignore else */
         if (__DEV__ && IS_CLIENT) {
           registerPiniaDevtools(app, pinia)
         }
+        // 保存pinia插件
         toBeInstalled.forEach((plugin) => _p.push(plugin))
+        // 清空插件
         toBeInstalled = []
       }
     },
-    // pinia的插件安装之后，再安装pinia自身
+    // pinia自身是否存在插件
     use(plugin) {
       if (!this._a && !isVue2) {
         toBeInstalled.push(plugin)

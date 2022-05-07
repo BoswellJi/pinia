@@ -19,12 +19,14 @@ import {
 } from './types'
 
 /**
+ * setActivePinia必须在像fetch,setup,serverPrefetch以及其他方法之上调用来处理ssr
  * setActivePinia must be called to handle SSR at the top of functions like
  * `fetch`, `setup`, `serverPrefetch` and others
  */
 export let activePinia: Pinia | undefined
 
 /**
+ * 安装或者卸载pinia,当调用action和getter时会在ssr和内部使用
  * Sets or unsets the active pinia. Used in SSR and internally when calling
  * actions and getters
  *
@@ -34,6 +36,7 @@ export const setActivePinia = (pinia: Pinia | undefined) =>
   (activePinia = pinia)
 
 /**
+ * 获取当前活跃的pinia实例
  * Get the currently active pinia if there is any.
  */
 export const getActivePinia = () =>
@@ -105,7 +108,7 @@ export interface PiniaPluginContext<
   S extends StateTree = StateTree,
   G /* extends _GettersTree<S> */ = _GettersTree<S>,
   A /* extends _ActionsTree */ = _ActionsTree
-> {
+  > {
   /**
    * pinia instance.
    */

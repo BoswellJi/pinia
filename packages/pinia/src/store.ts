@@ -124,7 +124,7 @@ function createOptionsStore<
   function setup() {
     if (!initialState && (!__DEV__ || !hot)) {
       /* istanbul ignore if */
-      // 将状态添加到store容器中
+      // 将store state 添加到store state容器中
       if (isVue2) {
         set(pinia.state.value, id, state ? state() : {})
       } else {
@@ -136,7 +136,7 @@ function createOptionsStore<
     const localState =
       __DEV__ && hot
         ? // use ref() to unwrap refs inside state TODO: check if this is still necessary
-          toRefs(ref(state ? state() : {}).value)
+        toRefs(ref(state ? state() : {}).value)
         : toRefs(pinia.state.value[id])
 
     return assign(
@@ -304,10 +304,10 @@ function createSetupStore<
   /* istanbul ignore next */
   const $reset = __DEV__
     ? () => {
-        throw new Error(
-          `🍍: Store "${$id}" is build using the setup syntax and does not implement $reset().`
-        )
-      }
+      throw new Error(
+        `🍍: Store "${$id}" is build using the setup syntax and does not implement $reset().`
+      )
+    }
     : noop
 
   function $dispose() {
@@ -429,10 +429,10 @@ function createSetupStore<
     assign(
       __DEV__ && IS_CLIENT
         ? // devtools custom properties
-          {
-            _customProperties: markRaw(new Set<string>()),
-            _hmrPayload,
-          }
+        {
+          _customProperties: markRaw(new Set<string>()),
+          _hmrPayload,
+        }
         : {},
       partialStore
       // must be added later
@@ -440,6 +440,7 @@ function createSetupStore<
     )
   ) as unknown as Store<Id, S, G, A>
 
+  // 现在存储部分store,所以他们完成前，stores的setup相互实例化不会创建无限循环
   // store the partial store now so the setup of stores can instantiate each other before they are finished without
   // creating infinite loops.
   pinia._s.set($id, store)
@@ -510,7 +511,7 @@ function createSetupStore<
       if (isComputed(prop)) {
         _hmrPayload.getters[key] = buildState
           ? // @ts-expect-error
-            options.getters[key]
+          options.getters[key]
           : prop
         if (IS_CLIENT) {
           const getters: string[] =
@@ -608,10 +609,10 @@ function createSetupStore<
         const getter: _Method = newStore._hmrPayload.getters[getterName]
         const getterValue = buildState
           ? // special handling of options api
-            computed(() => {
-              setActivePinia(pinia)
-              return getter.call(store, store)
-            })
+          computed(() => {
+            setActivePinia(pinia)
+            return getter.call(store, store)
+          })
           : getter
 
         set(store, getterName, getterValue)
@@ -646,7 +647,7 @@ function createSetupStore<
 
     if (IS_CLIENT) {
       // avoid listing internal properties in devtools
-      ;(
+      ; (
         ['_p', '_hmrPayload', '_getters', '_customProperties'] as const
       ).forEach((p) => {
         Object.defineProperty(store, p, {
@@ -703,8 +704,8 @@ function createSetupStore<
   ) {
     console.warn(
       `[🍍]: The "state" must be a plain object. It cannot be\n` +
-        `\tstate: () => new MyClass()\n` +
-        `Found in store "${store.$id}".`
+      `\tstate: () => new MyClass()\n` +
+      `Found in store "${store.$id}".`
     )
   }
 
@@ -714,7 +715,7 @@ function createSetupStore<
     buildState &&
     (options as DefineStoreOptions<Id, S, G, A>).hydrate
   ) {
-    ;(options as DefineStoreOptions<Id, S, G, A>).hydrate!(
+    ; (options as DefineStoreOptions<Id, S, G, A>).hydrate!(
       store.$state,
       initialState
     )
@@ -838,22 +839,26 @@ export function defineStore(
   let id: string
   let options:
     | DefineStoreOptions<
-        string,
-        StateTree,
-        _GettersTree<StateTree>,
-        _ActionsTree
-      >
+      string,
+      StateTree,
+      _GettersTree<StateTree>,
+      _ActionsTree
+    >
     | DefineSetupStoreOptions<
-        string,
-        StateTree,
-        _GettersTree<StateTree>,
-        _ActionsTree
-      >
+      string,
+      StateTree,
+      _GettersTree<StateTree>,
+      _ActionsTree
+    >
 
+  // 整理参数
+  // setup是否为函数 
   const isSetupStore = typeof setup === 'function'
+  // 第一个参数是否为store id
   if (typeof idOrOptions === 'string') {
     id = idOrOptions
     // the option store setup will contain the actual options in this case
+    // 选项store setup包含确切的选项，在这个案例中
     options = isSetupStore ? setupOptions : setup
   } else {
     options = idOrOptions
@@ -867,23 +872,26 @@ export function defineStore(
       // in test mode, ignore the argument provided as we can always retrieve a
       // pinia instance with getActivePinia()
       (__TEST__ && activePinia && activePinia._testing ? null : pinia) ||
-      (currentInstance && inject(piniaSymbol))
+      (currentInstance && inject(piniaSymbol)) // 在vue3安装插件时注册，获取pinia实例
+    // 将pinia实例设置为当前活跃store
     if (pinia) setActivePinia(pinia)
 
     if (__DEV__ && !activePinia) {
       throw new Error(
         `[🍍]: getActivePinia was called with no active Pinia. Did you forget to install pinia?\n` +
-          `\tconst pinia = createPinia()\n` +
-          `\tapp.use(pinia)\n` +
-          `This will fail in production.`
+        `\tconst pinia = createPinia()\n` +
+        `\tapp.use(pinia)\n` +
+        `This will fail in production.`
       )
     }
     // 当前的pinia实例
     pinia = activePinia!
-
+    // _s容器属性中不存在指定store
     if (!pinia._s.has(id)) {
+      // 在pinia._s中创建的仓库注册它
       // creating the store registers it in `pinia._s`
 
+      // setup是否为函数
       if (isSetupStore) {
         createSetupStore(id, setup, options, pinia)
       } else {
@@ -896,7 +904,7 @@ export function defineStore(
         useStore._pinia = pinia
       }
     }
-
+    // 从_s store容器中获取store
     const store: StoreGeneric = pinia._s.get(id)!
 
     if (__DEV__ && hot) {
@@ -912,6 +920,7 @@ export function defineStore(
       pinia._s.delete(hotId)
     }
 
+    // 将store保存在实例上以便开发者工具访问他们 
     // save stores in instances to access them devtools
     if (
       __DEV__ &&
