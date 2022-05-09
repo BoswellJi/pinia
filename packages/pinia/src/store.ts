@@ -124,7 +124,6 @@ function createOptionsStore<
   function setup() {
     if (!initialState && (!__DEV__ || !hot)) {
       /* istanbul ignore if */
-      // 将store state 添加到store state容器中
       if (isVue2) {
         set(pinia.state.value, id, state ? state() : {})
       } else {
@@ -136,7 +135,7 @@ function createOptionsStore<
     const localState =
       __DEV__ && hot
         ? // use ref() to unwrap refs inside state TODO: check if this is still necessary
-        toRefs(ref(state ? state() : {}).value)
+          toRefs(ref(state ? state() : {}).value)
         : toRefs(pinia.state.value[id])
 
     return assign(
@@ -164,7 +163,7 @@ function createOptionsStore<
     )
   }
 
-  store = createSetupStore(id, setup, options, pinia, hot)
+  store = createSetupStore(id, setup, options, pinia, hot, true)
 
   store.$reset = function $reset() {
     const newState = state ? state() : {}
@@ -177,15 +176,6 @@ function createOptionsStore<
   return store as any
 }
 
-/**
- * 根据setup函数创建store
- * @param $id 
- * @param setup 
- * @param options 
- * @param pinia 
- * @param hot 
- * @returns 
- */
 function createSetupStore<
   Id extends string,
   SS,
@@ -199,11 +189,10 @@ function createSetupStore<
     | DefineSetupStoreOptions<Id, S, G, A>
     | DefineStoreOptions<Id, S, G, A> = {},
   pinia: Pinia,
-  hot?: boolean
+  hot?: boolean,
+  isOptionsStore?: boolean
 ): Store<Id, S, G, A> {
   let scope!: EffectScope
-  // 获取store中的state
-  const buildState = (options as DefineStoreOptions<Id, S, G, A>).state
 
   const optionsForPlugin: DefineStoreOptionsInPlugin<Id, S, G, A> = assign(
     { actions: {} as A },
@@ -216,7 +205,6 @@ function createSetupStore<
     throw new Error('Pinia destroyed')
   }
 
-  // $subscribe的观察者参数
   // watcher options for $subscribe
   const $subscribeOptions: WatchOptions = {
     deep: true,
@@ -253,7 +241,7 @@ function createSetupStore<
 
   // avoid setting the state for option stores are it is set
   // by the setup
-  if (!buildState && !initialState && (!__DEV__ || !hot)) {
+  if (!isOptionsStore && !initialState && (!__DEV__ || !hot)) {
     /* istanbul ignore if */
     if (isVue2) {
       set(pinia.state.value, $id, {})
@@ -264,7 +252,6 @@ function createSetupStore<
 
   const hotState = ref({} as S)
 
-  // 避免触发太多监听器
   // avoid triggering too many listeners
   // https://github.com/vuejs/pinia/issues/1129
   let activeListener: Symbol | undefined
@@ -316,10 +303,10 @@ function createSetupStore<
   /* istanbul ignore next */
   const $reset = __DEV__
     ? () => {
-      throw new Error(
-        `🍍: Store "${$id}" is build using the setup syntax and does not implement $reset().`
-      )
-    }
+        throw new Error(
+          `🍍: Store "${$id}" is build using the setup syntax and does not implement $reset().`
+        )
+      }
     : noop
 
   function $dispose() {
@@ -441,10 +428,10 @@ function createSetupStore<
     assign(
       __DEV__ && IS_CLIENT
         ? // devtools custom properties
-        {
-          _customProperties: markRaw(new Set<string>()),
-          _hmrPayload,
-        }
+          {
+            _customProperties: markRaw(new Set<string>()),
+            _hmrPayload,
+          }
         : {},
       partialStore
       // must be added later
@@ -452,7 +439,6 @@ function createSetupStore<
     )
   ) as unknown as Store<Id, S, G, A>
 
-  // 现在存储部分store,所以他们完成前，stores的setup相互实例化不会创建无限循环
   // store the partial store now so the setup of stores can instantiate each other before they are finished without
   // creating infinite loops.
   pinia._s.set($id, store)
@@ -463,7 +449,6 @@ function createSetupStore<
     return scope.run(() => setup())
   })!
 
-  // 重写现存的actions来支持$onAction
   // overwrite existing actions to support $onAction
   for (const key in setupStore) {
     const prop = setupStore[key]
@@ -474,7 +459,7 @@ function createSetupStore<
         set(hotState.value, key, toRef(setupStore as any, key))
         // createOptionStore directly sets the state in pinia.state.value so we
         // can just skip that
-      } else if (!buildState) {
+      } else if (!isOptionsStore) {
         // in setup stores we must hydrate the state and sync pinia state tree with the refs the user just created
         if (initialState && shouldHydrate(prop)) {
           if (isRef(prop)) {
@@ -522,9 +507,9 @@ function createSetupStore<
     } else if (__DEV__) {
       // add getters for devtools
       if (isComputed(prop)) {
-        _hmrPayload.getters[key] = buildState
+        _hmrPayload.getters[key] = isOptionsStore
           ? // @ts-expect-error
-          options.getters[key]
+            options.getters[key]
           : prop
         if (IS_CLIENT) {
           const getters: string[] =
@@ -536,7 +521,6 @@ function createSetupStore<
     }
   }
 
-  // 添加 state,getter,和action属性
   // add the state, getters, and action properties
   /* istanbul ignore if */
   if (isVue2) {
@@ -544,13 +528,12 @@ function createSetupStore<
       set(
         store,
         key,
-        // // @ts-expect-error: valid key indexing
+        // @ts-expect-error: valid key indexing
         setupStore[key]
       )
     })
   } else {
     assign(store, setupStore)
-    // 允许通过storeToRefs()找回响应式对象。赋值响应式属性后必须调用
     // allows retrieving reactive objects with `storeToRefs()`. Must be called after assigning to the reactive object.
     // Make `storeToRefs()` work with `reactive()` #799
     assign(toRaw(store), setupStore)
@@ -622,12 +605,12 @@ function createSetupStore<
       // TODO: does this work in both setup and option store?
       for (const getterName in newStore._hmrPayload.getters) {
         const getter: _Method = newStore._hmrPayload.getters[getterName]
-        const getterValue = buildState
+        const getterValue = isOptionsStore
           ? // special handling of options api
-          computed(() => {
-            setActivePinia(pinia)
-            return getter.call(store, store)
-          })
+            computed(() => {
+              setActivePinia(pinia)
+              return getter.call(store, store)
+            })
           : getter
 
         set(store, getterName, getterValue)
@@ -662,7 +645,7 @@ function createSetupStore<
 
     if (IS_CLIENT) {
       // avoid listing internal properties in devtools
-      ; (
+      ;(
         ['_p', '_hmrPayload', '_getters', '_customProperties'] as const
       ).forEach((p) => {
         Object.defineProperty(store, p, {
@@ -719,18 +702,18 @@ function createSetupStore<
   ) {
     console.warn(
       `[🍍]: The "state" must be a plain object. It cannot be\n` +
-      `\tstate: () => new MyClass()\n` +
-      `Found in store "${store.$id}".`
+        `\tstate: () => new MyClass()\n` +
+        `Found in store "${store.$id}".`
     )
   }
 
   // only apply hydrate to option stores with an initial state in pinia
   if (
     initialState &&
-    buildState &&
+    isOptionsStore &&
     (options as DefineStoreOptions<Id, S, G, A>).hydrate
   ) {
-    ; (options as DefineStoreOptions<Id, S, G, A>).hydrate!(
+    ;(options as DefineStoreOptions<Id, S, G, A>).hydrate!(
       store.$state,
       initialState
     )
@@ -740,11 +723,6 @@ function createSetupStore<
   isSyncListening = true
   return store
 }
-
-// export function disposeStore(store: StoreGeneric) {
-//   store._e
-
-// }
 
 /**
  * Extract the actions of a store type. Works with both a Setup Store or an
@@ -794,10 +772,9 @@ export type StoreState<SS> = SS extends Store<
 // }>
 
 /**
- * 创建一个检索store实例的useStore函数
  * Creates a `useStore` function that retrieves the store instance
  *
- * @param id - id of the store (must be unique) store的id
+ * @param id - id of the store (must be unique)
  * @param options - options to define the store
  */
 export function defineStore<
@@ -855,26 +832,22 @@ export function defineStore(
   let id: string
   let options:
     | DefineStoreOptions<
-      string,
-      StateTree,
-      _GettersTree<StateTree>,
-      _ActionsTree
-    >
+        string,
+        StateTree,
+        _GettersTree<StateTree>,
+        _ActionsTree
+      >
     | DefineSetupStoreOptions<
-      string,
-      StateTree,
-      _GettersTree<StateTree>,
-      _ActionsTree
-    >
+        string,
+        StateTree,
+        _GettersTree<StateTree>,
+        _ActionsTree
+      >
 
-  // 整理参数
-  // setup是否为函数 
   const isSetupStore = typeof setup === 'function'
-  // 第一个参数是否为store id
   if (typeof idOrOptions === 'string') {
     id = idOrOptions
     // the option store setup will contain the actual options in this case
-    // 选项store setup包含确切的选项，在这个案例中
     options = isSetupStore ? setupOptions : setup
   } else {
     options = idOrOptions
@@ -882,32 +855,27 @@ export function defineStore(
   }
 
   function useStore(pinia?: Pinia | null, hot?: StoreGeneric): StoreGeneric {
-    // 获取当前组件实例
     const currentInstance = getCurrentInstance()
     pinia =
       // in test mode, ignore the argument provided as we can always retrieve a
       // pinia instance with getActivePinia()
       (__TEST__ && activePinia && activePinia._testing ? null : pinia) ||
-      (currentInstance && inject(piniaSymbol)) // 在vue3安装插件时注册，获取pinia实例
-    // 将pinia实例设置为当前活跃store
+      (currentInstance && inject(piniaSymbol))
     if (pinia) setActivePinia(pinia)
 
     if (__DEV__ && !activePinia) {
       throw new Error(
         `[🍍]: getActivePinia was called with no active Pinia. Did you forget to install pinia?\n` +
-        `\tconst pinia = createPinia()\n` +
-        `\tapp.use(pinia)\n` +
-        `This will fail in production.`
+          `\tconst pinia = createPinia()\n` +
+          `\tapp.use(pinia)\n` +
+          `This will fail in production.`
       )
     }
-    // 当前的pinia实例
-    pinia = activePinia!
-    // _s容器属性中不存在指定store
-    if (!pinia._s.has(id)) {
-      // 在pinia._s中创建的仓库注册它
-      // creating the store registers it in `pinia._s`
 
-      // setup是否为函数
+    pinia = activePinia!
+
+    if (!pinia._s.has(id)) {
+      // creating the store registers it in `pinia._s`
       if (isSetupStore) {
         createSetupStore(id, setup, options, pinia)
       } else {
@@ -920,7 +888,7 @@ export function defineStore(
         useStore._pinia = pinia
       }
     }
-    // 从_s store容器中获取store
+
     const store: StoreGeneric = pinia._s.get(id)!
 
     if (__DEV__ && hot) {
@@ -936,7 +904,6 @@ export function defineStore(
       pinia._s.delete(hotId)
     }
 
-    // 将store保存在实例上以便开发者工具访问他们 
     // save stores in instances to access them devtools
     if (
       __DEV__ &&
