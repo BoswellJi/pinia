@@ -177,6 +177,15 @@ function createOptionsStore<
   return store as any
 }
 
+/**
+ * 根据setup函数创建store
+ * @param $id 
+ * @param setup 
+ * @param options 
+ * @param pinia 
+ * @param hot 
+ * @returns 
+ */
 function createSetupStore<
   Id extends string,
   SS,
@@ -193,6 +202,7 @@ function createSetupStore<
   hot?: boolean
 ): Store<Id, S, G, A> {
   let scope!: EffectScope
+  // 获取store中的state
   const buildState = (options as DefineStoreOptions<Id, S, G, A>).state
 
   const optionsForPlugin: DefineStoreOptionsInPlugin<Id, S, G, A> = assign(
@@ -206,6 +216,7 @@ function createSetupStore<
     throw new Error('Pinia destroyed')
   }
 
+  // $subscribe的观察者参数
   // watcher options for $subscribe
   const $subscribeOptions: WatchOptions = {
     deep: true,
@@ -253,6 +264,7 @@ function createSetupStore<
 
   const hotState = ref({} as S)
 
+  // 避免触发太多监听器
   // avoid triggering too many listeners
   // https://github.com/vuejs/pinia/issues/1129
   let activeListener: Symbol | undefined
@@ -451,6 +463,7 @@ function createSetupStore<
     return scope.run(() => setup())
   })!
 
+  // 重写现存的actions来支持$onAction
   // overwrite existing actions to support $onAction
   for (const key in setupStore) {
     const prop = setupStore[key]
@@ -523,6 +536,7 @@ function createSetupStore<
     }
   }
 
+  // 添加 state,getter,和action属性
   // add the state, getters, and action properties
   /* istanbul ignore if */
   if (isVue2) {
@@ -530,12 +544,13 @@ function createSetupStore<
       set(
         store,
         key,
-        // @ts-expect-error: valid key indexing
+        // // @ts-expect-error: valid key indexing
         setupStore[key]
       )
     })
   } else {
     assign(store, setupStore)
+    // 允许通过storeToRefs()找回响应式对象。赋值响应式属性后必须调用
     // allows retrieving reactive objects with `storeToRefs()`. Must be called after assigning to the reactive object.
     // Make `storeToRefs()` work with `reactive()` #799
     assign(toRaw(store), setupStore)
@@ -779,9 +794,10 @@ export type StoreState<SS> = SS extends Store<
 // }>
 
 /**
+ * 创建一个检索store实例的useStore函数
  * Creates a `useStore` function that retrieves the store instance
  *
- * @param id - id of the store (must be unique)
+ * @param id - id of the store (must be unique) store的id
  * @param options - options to define the store
  */
 export function defineStore<
