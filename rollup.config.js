@@ -162,12 +162,12 @@ function createReplacePlugin(
   const replacements = {
     __COMMIT__: `"${process.env.COMMIT}"`,
     __VERSION__: `"${pkg.version}"`,
-    __DEV__:
-      isBundlerESMBuild || (isNodeBuild && !isProduction)
-        ? // preserve to be handled by bundlers
-          `(process.env.NODE_ENV !== 'production')`
-        : // hard coded dev/prod builds
-          JSON.stringify(!isProduction),
+    __DEV__: 'false',
+    // isBundlerESMBuild || (isNodeBuild && !isProduction)
+    //   ? // preserve to be handled by bundlers
+    //     `(process.env.NODE_ENV !== 'production')`
+    //   : // hard coded dev/prod builds
+    //     JSON.stringify(!isProduction),
     // this is only used during tests
     __TEST__:
       isBundlerESMBuild || isNodeBuild

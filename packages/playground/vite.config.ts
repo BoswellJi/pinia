@@ -7,7 +7,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [vue(), copyPiniaPlugin()],
   define: {
-    // __DEV__: 'true',
+    __DEV__: 'false',
     // __BROWSER__: 'true',
     __TEST__: 'false',
   },
