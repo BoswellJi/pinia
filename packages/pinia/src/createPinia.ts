@@ -18,6 +18,7 @@ export function createPinia(): Pinia {
   )!
 
   let _p: Pinia['_p'] = []
+  // 插件再调用app.use(pinia)之前添加
   // plugins added before calling app.use(pinia)
   let toBeInstalled: PiniaPlugin[] = []
 
@@ -60,7 +61,7 @@ export function createPinia(): Pinia {
     // it's actually undefined here
     // @ts-expect-error 当前app实例
     _a: null,
-    // 副作用作用域
+    // 副效果作用域
     _e: scope,
     // store容器
     _s: new Map<string, StoreGeneric>(),

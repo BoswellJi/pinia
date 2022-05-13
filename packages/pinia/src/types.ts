@@ -37,6 +37,7 @@ export type _DeepPartial<T> = { [K in keyof T]?: _DeepPartial<T[K]> }
 
 // TODO: can we change these to numbers?
 /**
+ * 订阅回调的可能类型
  * Possible types for SubscriptionCallback
  */
 export enum MutationType {
@@ -165,8 +166,8 @@ export type _Awaited<T> = T extends null | undefined
   ? T // special case for `null | undefined` when not in `--strictNullChecks` mode
   : T extends object & { then(onfulfilled: infer F): any } // `await` only unwraps object types with a callable `then`. Non-object types are not unwrapped
   ? F extends (value: infer V, ...args: any) => any // if the argument to `then` is callable, extracts the first argument
-    ? _Awaited<V> // recursively unwrap the value
-    : never // the argument to `then` was not callable
+  ? _Awaited<V> // recursively unwrap the value
+  : never // the argument to `then` was not callable
   : T // non-object or non-thenable
 
 /**
@@ -178,7 +179,7 @@ export interface _StoreOnActionListenerContext<
   Store,
   ActionName extends string,
   A
-> {
+  > {
   /**
    * Name of the action
    */
@@ -193,8 +194,8 @@ export interface _StoreOnActionListenerContext<
    * Parameters passed to the action
    */
   args: A extends Record<ActionName, _Method>
-    ? Parameters<A[ActionName]>
-    : unknown[]
+  ? Parameters<A[ActionName]>
+  : unknown[]
 
   /**
    * Sets up a hook once the action is finished. It receives the return value
@@ -204,12 +205,12 @@ export interface _StoreOnActionListenerContext<
   after: (
     callback: A extends Record<ActionName, _Method>
       ? (
-          resolvedReturn: _Awaited<ReturnType<A[ActionName]>>
-          // allow the after callback to override the return value
-        ) =>
-          | void
-          | ReturnType<A[ActionName]>
-          | _Awaited<ReturnType<A[ActionName]>>
+        resolvedReturn: _Awaited<ReturnType<A[ActionName]>>
+        // allow the after callback to override the return value
+      ) =>
+        | void
+        | ReturnType<A[ActionName]>
+        | _Awaited<ReturnType<A[ActionName]>>
       : () => void
   ) => void
 
@@ -229,13 +230,13 @@ export type StoreOnActionListenerContext<
   S extends StateTree,
   G /* extends GettersTree<S> */,
   A /* extends ActionsTree */
-> = _ActionsTree extends A
+  > = _ActionsTree extends A
   ? _StoreOnActionListenerContext<StoreGeneric, string, _ActionsTree>
   : {
-      [Name in keyof A]: Name extends string
-        ? _StoreOnActionListenerContext<Store<Id, S, G, A>, Name, A>
-        : never
-    }[keyof A]
+    [Name in keyof A]: Name extends string
+    ? _StoreOnActionListenerContext<Store<Id, S, G, A>, Name, A>
+    : never
+  }[keyof A]
 
 /**
  * Argument of `store.$onAction()`
@@ -245,15 +246,15 @@ export type StoreOnActionListener<
   S extends StateTree,
   G /* extends GettersTree<S> */,
   A /* extends ActionsTree */
-> = (
-  context: StoreOnActionListenerContext<
-    Id,
-    S,
-    G,
-    // {} creates a type of never due to how StoreOnActionListenerContext is defined
-    {} extends A ? _ActionsTree : A
-  >
-) => void
+  > = (
+    context: StoreOnActionListenerContext<
+      Id,
+      S,
+      G,
+      // {} creates a type of never due to how StoreOnActionListenerContext is defined
+      {} extends A ? _ActionsTree : A
+    >
+  ) => void
 
 /**
  * Properties of a store.
@@ -328,7 +329,7 @@ export interface _StoreWithState<
   S extends StateTree,
   G /* extends GettersTree<StateTree> */,
   A /* extends ActionsTree */
-> extends StoreProperties<Id> {
+  > extends StoreProperties<Id> {
   /**
    * State of the Store. Setting it will replace the whole state.
    */
@@ -450,8 +451,8 @@ export type _Method = (...args: any[]) => any
  */
 export type _StoreWithActions<A> = {
   [k in keyof A]: A[k] extends (...args: infer P) => infer R
-    ? (...args: P) => R
-    : never
+  ? (...args: P) => R
+  : never
 }
 
 /**
@@ -460,8 +461,8 @@ export type _StoreWithActions<A> = {
  */
 export type _StoreWithGetters<G> = {
   readonly [k in keyof G]: G[k] extends (...args: any[]) => infer R
-    ? R
-    : UnwrapRef<G[k]>
+  ? R
+  : UnwrapRef<G[k]>
 }
 
 /**
@@ -473,7 +474,7 @@ export type Store<
   G /* extends GettersTree<S>*/ = {},
   // has the actions without the context (this) for typings
   A /* extends ActionsTree */ = {}
-> = _StoreWithState<Id, S, G, A> &
+  > = _StoreWithState<Id, S, G, A> &
   UnwrapRef<S> &
   _StoreWithGetters<G> &
   // StoreWithActions<A> &
@@ -501,7 +502,7 @@ export interface StoreDefinition<
   S extends StateTree = StateTree,
   G /* extends GettersTree<S>*/ = _GettersTree<S>,
   A /* extends ActionsTree */ = _ActionsTree
-> {
+  > {
   /**
    * Returns a store, creates it if necessary.
    *
@@ -531,12 +532,12 @@ export interface PiniaCustomProperties<
   S extends StateTree = StateTree,
   G /* extends GettersTree<S> */ = _GettersTree<S>,
   A /* extends ActionsTree */ = _ActionsTree
-> {}
+  > { }
 
 /**
  * Properties that are added to every `store.$state` by `pinia.use()`.
  */
-export interface PiniaCustomStateProperties<S extends StateTree = StateTree> {}
+export interface PiniaCustomStateProperties<S extends StateTree = StateTree> { }
 
 /**
  * Type of an object of Getters that infers the argument. For internal usage only.
@@ -616,7 +617,7 @@ export type _ExtractGettersFromSetupStore<SS> = SS extends undefined | void
  * stores. Extend this interface if you want to add custom options to both kinds
  * of stores.
  */
-export interface DefineStoreOptionsBase<S extends StateTree, Store> {}
+export interface DefineStoreOptionsBase<S extends StateTree, Store> { }
 
 /**
  * Options parameter of `defineStore()` for option stores. Can be extended to
@@ -627,7 +628,7 @@ export interface DefineStoreOptions<
   S extends StateTree,
   G /* extends GettersTree<S> */,
   A /* extends Record<string, StoreAction> */
-> extends DefineStoreOptionsBase<S, Store<Id, S, G, A>> {
+  > extends DefineStoreOptionsBase<S, Store<Id, S, G, A>> {
   /**
    * Unique string key to identify the store across the application.
    */
@@ -643,20 +644,20 @@ export interface DefineStoreOptions<
    * Optional object of getters.
    */
   getters?: G &
-    ThisType<UnwrapRef<S> & _StoreWithGetters<G> & PiniaCustomProperties> &
-    _GettersTree<S>
+  ThisType<UnwrapRef<S> & _StoreWithGetters<G> & PiniaCustomProperties> &
+  _GettersTree<S>
 
   /**
    * Optional object of actions.
    */
   actions?: A &
-    ThisType<
-      A &
-        UnwrapRef<S> &
-        _StoreWithState<Id, S, G, A> &
-        _StoreWithGetters<G> &
-        PiniaCustomProperties
-    >
+  ThisType<
+    A &
+    UnwrapRef<S> &
+    _StoreWithState<Id, S, G, A> &
+    _StoreWithGetters<G> &
+    PiniaCustomProperties
+  >
 
   /**
    * Allows hydrating the store during SSR when complex state (like client side only refs) are used in the store
@@ -695,7 +696,7 @@ export interface DefineSetupStoreOptions<
   S extends StateTree,
   G,
   A /* extends ActionsTree */
-> extends DefineStoreOptionsBase<S, Store<Id, S, G, A>> {
+  > extends DefineStoreOptionsBase<S, Store<Id, S, G, A>> {
   /**
    * Extracted actions. Added by useStore(). SHOULD NOT be added by the user when
    * creating the store. Can be used in plugins to get the list of actions in a
@@ -712,7 +713,7 @@ export interface DefineStoreOptionsInPlugin<
   S extends StateTree,
   G,
   A
-> extends Omit<DefineStoreOptions<Id, S, G, A>, 'id' | 'actions'> {
+  > extends Omit<DefineStoreOptions<Id, S, G, A>, 'id' | 'actions'> {
   /**
    * Extracted object of actions. Added by useStore() when the store is built
    * using the setup API, otherwise uses the one passed to `defineStore()`.

@@ -43,6 +43,7 @@ export const getActivePinia = () =>
   (getCurrentInstance() && inject(piniaSymbol)) || activePinia
 
 /**
+ * 每个应用程序必须拥有属性自己的pinia来创建仓库
  * Every application must own its own pinia to be able to create stores
  */
 export interface Pinia {
@@ -101,6 +102,7 @@ export const piniaSymbol = (
 ) as InjectionKey<Pinia>
 
 /**
+ * 传递给pinia插件的上下文参数
  * Context argument passed to Pinia plugins.
  */
 export interface PiniaPluginContext<
@@ -131,6 +133,7 @@ export interface PiniaPluginContext<
 }
 
 /**
+ * 扩展每个store的插件
  * Plugin to extend every store.
  */
 export interface PiniaPlugin {
