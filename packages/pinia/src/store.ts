@@ -876,6 +876,7 @@ export function defineStore(
     pinia = activePinia!
 
     if (!pinia._s.has(id)) {
+      // 创建store注册到pinia._s中
       // creating the store registers it in `pinia._s`
       if (isSetupStore) {
         createSetupStore(id, setup, options, pinia)
@@ -890,6 +891,7 @@ export function defineStore(
       }
     }
 
+    // 取出其中的store,根据store id
     const store: StoreGeneric = pinia._s.get(id)!
 
     if (__DEV__ && hot) {
