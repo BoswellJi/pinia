@@ -115,12 +115,17 @@ function createOptionsStore<
   pinia: Pinia,
   hot?: boolean
 ): Store<Id, S, G, A> {
+  // data methods computed
   const { state, actions, getters } = options
 
   const initialState: StateTree | undefined = pinia.state.value[id]
 
   let store: Store<Id, S, G, A>
 
+  /**
+   * 整理响应式对象
+   * @returns 
+   */
   function setup() {
     if (!initialState && (!__DEV__ || !hot)) {
       /* istanbul ignore if */
@@ -167,6 +172,7 @@ function createOptionsStore<
 
   store.$reset = function $reset() {
     const newState = state ? state() : {}
+    // 我们使用补丁来将所有变化分组到单一的订阅中
     // we use a patch to group all changes into one single subscription
     this.$patch(($state) => {
       assign($state, newState)
@@ -176,6 +182,15 @@ function createOptionsStore<
   return store as any
 }
 
+/**
+ * @param $id 仓库id
+ * @param setup composition api
+ * @param options option api
+ * @param pinia 状态库实例
+ * @param hot 
+ * @param isOptionsStore 
+ * @returns 
+ */
 function createSetupStore<
   Id extends string,
   SS,
@@ -425,6 +440,7 @@ function createSetupStore<
     partialStore._r = false
   }
 
+  // 创建仓库
   const store: Store<Id, S, G, A> = reactive(
     assign(
       __DEV__ && IS_CLIENT
