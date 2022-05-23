@@ -57,6 +57,7 @@ function mergeReactiveObjects<T extends StateTree>(
   target: T,
   patchToApply: _DeepPartial<T>
 ): T {
+  // 不需要通过符号，因为他们不能任何方式序列化
   // no need to go through symbols because they cannot be serialized anyway
   for (const key in patchToApply) {
     if (!patchToApply.hasOwnProperty(key)) continue
