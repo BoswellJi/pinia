@@ -19,12 +19,14 @@ features:
   - title: 🏗 Modular by design
     details: Build multiple stores and let your bundler code split them automatically.
   - title: 📦 Extremely light
-    details: Pinia weighs around 1kb, you will forget it's even there!
+    details: Pinia weighs ~1.5kb, you will forget it's even there!
 footer: MIT Licensed | Copyright © 2019-present Eduardo San Martin Morote
 ---
 
-<ThemeToggle/>
-<!-- <TestStore/> -->
+<ClientOnly>
+  <ThemeToggle/>
+  <!-- <TestStore/> -->
+</ClientOnly>
 
 <HomeSponsors />
 

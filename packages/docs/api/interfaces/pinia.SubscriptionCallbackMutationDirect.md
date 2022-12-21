@@ -26,11 +26,13 @@ newValue`.
 
 • **events**: `DebuggerEvent`
 
-DEV ONLY. Different mutation calls.
+🔴 DEV ONLY, DO NOT use for production code. Different mutation calls. Comes from
+https://vuejs.org/guide/extras/reactivity-in-depth.html#reactivity-debugging and allows to track mutations in
+devtools and plugins **during development only**.
 
-#### Defined in
+#### Overrides
 
-[packages/pinia/src/types.ts:96](https://github.com/vuejs/pinia/blob/2b998ee/packages/pinia/src/types.ts#L96)
+[_SubscriptionCallbackMutationBase](pinia._SubscriptionCallbackMutationBase.md).[events](pinia._SubscriptionCallbackMutationBase.md#events)
 
 ___
 
@@ -44,10 +46,6 @@ ___
 
 [_SubscriptionCallbackMutationBase](pinia._SubscriptionCallbackMutationBase.md).[storeId](pinia._SubscriptionCallbackMutationBase.md#storeid)
 
-#### Defined in
-
-[packages/pinia/src/types.ts:81](https://github.com/vuejs/pinia/blob/2b998ee/packages/pinia/src/types.ts#L81)
-
 ___
 
 ### type
@@ -59,7 +57,3 @@ Type of the mutation.
 #### Overrides
 
 [_SubscriptionCallbackMutationBase](pinia._SubscriptionCallbackMutationBase.md).[type](pinia._SubscriptionCallbackMutationBase.md#type)
-
-#### Defined in
-
-[packages/pinia/src/types.ts:91](https://github.com/vuejs/pinia/blob/2b998ee/packages/pinia/src/types.ts#L91)

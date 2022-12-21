@@ -24,7 +24,7 @@ Depending on what or how you are testing, we need to take care of these three di
 To unit test a store, the most important part is creating a `pinia` instance:
 
 ```js
-// counterStore.spec.ts
+// stores/counter.spec.ts
 import { setActivePinia, createPinia } from 'pinia'
 import { useCounter } from '../src/stores/counter'
 
@@ -84,6 +84,8 @@ And make sure to create a testing pinia in your tests when mounting a component:
 ```js
 import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
+// import any store you want to interact with in tests
+import { useSomeStore } from '@/stores/myStore'
 
 const wrapper = mount(Counter, {
   global: {

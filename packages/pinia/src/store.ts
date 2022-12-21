@@ -47,17 +47,24 @@ import {
   _StoreWithState,
 } from './types'
 import { setActivePinia, piniaSymbol, Pinia, activePinia } from './rootStore'
-import { IS_CLIENT } from './env'
+import { IS_CLIENT, USE_DEVTOOLS } from './env'
 import { patchObject } from './hmr'
 import { addSubscription, triggerSubscriptions, noop } from './subscriptions'
 
 type _ArrayType<AT> = AT extends Array<infer T> ? T : never
 
-function mergeReactiveObjects<T extends StateTree>(
-  target: T,
-  patchToApply: _DeepPartial<T>
-): T {
-  // 不需要通过符号，因为他们不能任何方式序列化
+function mergeReactiveObjects<
+  T extends Record<any, unknown> | Map<unknown, unknown> | Set<unknown>
+>(target: T, patchToApply: _DeepPartial<T>): T {
+  // Handle Map instances
+  if (target instanceof Map && patchToApply instanceof Map) {
+    patchToApply.forEach((value, key) => target.set(key, value))
+  }
+  // Handle Set instances
+  if (target instanceof Set && patchToApply instanceof Set) {
+    patchToApply.forEach(target.add, target)
+  }
+
   // no need to go through symbols because they cannot be serialized anyway
   for (const key in patchToApply) {
     if (!patchToApply.hasOwnProperty(key)) continue
@@ -70,6 +77,9 @@ function mergeReactiveObjects<T extends StateTree>(
       !isRef(subPatch) &&
       !isReactive(subPatch)
     ) {
+      // NOTE: here I wanted to warn about inconsistent types but it's not possible because in setup stores one might
+      // start the value of a property as a certain type e.g. a Map, and then for some reason, during SSR, change that
+      // to `undefined`. When trying to hydrate, we want to override the Map with `undefined`.
       target[key] = mergeReactiveObjects(targetValue, subPatch)
     } else {
       // @ts-expect-error: subPatch is a valid value
@@ -99,6 +109,12 @@ export function skipHydrate<T = any>(obj: T): T {
     : Object.defineProperty(obj, skipHydrateSymbol, {})
 }
 
+/**
+ * Returns whether a value should be hydrated
+ *
+ * @param obj - target variable
+ * @returns true if `obj` should be hydrated
+ */
 function shouldHydrate(obj: any) {
   return isVue2
     ? /* istanbul ignore next */ !skipHydrateMap.has(obj)
@@ -123,17 +139,12 @@ function createOptionsStore<
   pinia: Pinia,
   hot?: boolean
 ): Store<Id, S, G, A> {
-  // data methods computed
   const { state, actions, getters } = options
 
   const initialState: StateTree | undefined = pinia.state.value[id]
 
   let store: Store<Id, S, G, A>
 
-  /**
-   * 整理响应式对象
-   * @returns 
-   */
   function setup() {
     if (!initialState && (!__DEV__ || !hot)) {
       /* istanbul ignore if */
@@ -148,13 +159,19 @@ function createOptionsStore<
     const localState =
       __DEV__ && hot
         ? // use ref() to unwrap refs inside state TODO: check if this is still necessary
-        toRefs(ref(state ? state() : {}).value)
+          toRefs(ref(state ? state() : {}).value)
         : toRefs(pinia.state.value[id])
 
     return assign(
       localState,
       actions,
       Object.keys(getters || {}).reduce((computedGetters, name) => {
+        if (__DEV__ && name in localState) {
+          console.warn(
+            `[🍍]: A getter cannot have the same name as another state property. Rename one of them. Found with "${name}" in store "${id}".`
+          )
+        }
+
         computedGetters[name] = markRaw(
           computed(() => {
             setActivePinia(pinia)
@@ -180,7 +197,6 @@ function createOptionsStore<
 
   store.$reset = function $reset() {
     const newState = state ? state() : {}
-    // 我们使用补丁来将所有变化分组到单一的订阅中
     // we use a patch to group all changes into one single subscription
     this.$patch(($state) => {
       assign($state, newState)
@@ -190,18 +206,9 @@ function createOptionsStore<
   return store as any
 }
 
-/**
- * @param $id 仓库id
- * @param setup composition api
- * @param options option api
- * @param pinia 状态库实例
- * @param hot 
- * @param isOptionsStore 
- * @returns 
- */
 function createSetupStore<
   Id extends string,
-  SS,
+  SS extends Record<any, unknown>,
   S extends StateTree,
   G extends Record<string, _Method>,
   A extends _ActionsTree
@@ -228,7 +235,6 @@ function createSetupStore<
     throw new Error('Pinia destroyed')
   }
 
-  // 订阅的watcher选项
   // watcher options for $subscribe
   const $subscribeOptions: WatchOptions = {
     deep: true,
@@ -327,10 +333,10 @@ function createSetupStore<
   /* istanbul ignore next */
   const $reset = __DEV__
     ? () => {
-      throw new Error(
-        `🍍: Store "${$id}" is built using the setup syntax and does not implement $reset().`
-      )
-    }
+        throw new Error(
+          `🍍: Store "${$id}" is built using the setup syntax and does not implement $reset().`
+        )
+      }
     : noop
 
   function $dispose() {
@@ -448,20 +454,18 @@ function createSetupStore<
     partialStore._r = false
   }
 
-  // 创建仓库
   const store: Store<Id, S, G, A> = reactive(
-    assign(
-      __DEV__ && IS_CLIENT
-        ? // devtools custom properties
-        {
-          _customProperties: markRaw(new Set<string>()),
-          _hmrPayload,
-        }
-        : {},
-      partialStore
-      // must be added later
-      // setupStore
-    )
+    __DEV__ || USE_DEVTOOLS
+      ? assign(
+          {
+            _hmrPayload,
+            _customProperties: markRaw(new Set<string>()), // devtools custom properties
+          },
+          partialStore
+          // must be added later
+          // setupStore
+        )
+      : partialStore
   ) as unknown as Store<Id, S, G, A>
 
   // store the partial store now so the setup of stores can instantiate each other before they are finished without
@@ -469,7 +473,6 @@ function createSetupStore<
   pinia._s.set($id, store)
 
   // TODO: idea create skipSerialize that marks properties as non serializable and they are skipped
-  // 返回组件的响应式数据
   const setupStore = pinia._e.run(() => {
     scope = effectScope()
     return scope.run(() => setup())
@@ -492,6 +495,7 @@ function createSetupStore<
             prop.value = initialState[key]
           } else {
             // probably a reactive object, lets recursively assign
+            // @ts-expect-error: prop is unknown
             mergeReactiveObjects(prop, initialState[key])
           }
         }
@@ -535,12 +539,13 @@ function createSetupStore<
       if (isComputed(prop)) {
         _hmrPayload.getters[key] = isOptionsStore
           ? // @ts-expect-error
-          options.getters[key]
+            options.getters[key]
           : prop
         if (IS_CLIENT) {
           const getters: string[] =
-            // @ts-expect-error: it should be on the store
-            setupStore._getters || (setupStore._getters = markRaw([]))
+            (setupStore._getters as string[]) ||
+            // @ts-expect-error: same
+            ((setupStore._getters = markRaw([])) as string[])
           getters.push(key)
         }
       }
@@ -551,12 +556,7 @@ function createSetupStore<
   /* istanbul ignore if */
   if (isVue2) {
     Object.keys(setupStore).forEach((key) => {
-      set(
-        store,
-        key,
-        // @ts-expect-error: valid key indexing
-        setupStore[key]
-      )
+      set(store, key, setupStore[key])
     })
   } else {
     assign(store, setupStore)
@@ -633,10 +633,10 @@ function createSetupStore<
         const getter: _Method = newStore._hmrPayload.getters[getterName]
         const getterValue = isOptionsStore
           ? // special handling of options api
-          computed(() => {
-            setActivePinia(pinia)
-            return getter.call(store, store)
-          })
+            computed(() => {
+              setActivePinia(pinia)
+              return getter.call(store, store)
+            })
           : getter
 
         set(store, getterName, getterValue)
@@ -661,7 +661,9 @@ function createSetupStore<
       store._getters = newStore._getters
       store._hotUpdating = false
     })
+  }
 
+  if (USE_DEVTOOLS) {
     const nonEnumerable = {
       writable: true,
       configurable: true,
@@ -669,17 +671,15 @@ function createSetupStore<
       enumerable: false,
     }
 
-    if (IS_CLIENT) {
-      // avoid listing internal properties in devtools
-      ; (
-        ['_p', '_hmrPayload', '_getters', '_customProperties'] as const
-      ).forEach((p) => {
+    // avoid listing internal properties in devtools
+    ;(['_p', '_hmrPayload', '_getters', '_customProperties'] as const).forEach(
+      (p) => {
         Object.defineProperty(store, p, {
           value: store[p],
           ...nonEnumerable,
         })
-      })
-    }
+      }
+    )
   }
 
   /* istanbul ignore if */
@@ -691,7 +691,7 @@ function createSetupStore<
   // apply all plugins
   pinia._p.forEach((extender) => {
     /* istanbul ignore else */
-    if (__DEV__ && IS_CLIENT) {
+    if (USE_DEVTOOLS) {
       const extensions = scope.run(() =>
         extender({
           store,
@@ -728,8 +728,8 @@ function createSetupStore<
   ) {
     console.warn(
       `[🍍]: The "state" must be a plain object. It cannot be\n` +
-      `\tstate: () => new MyClass()\n` +
-      `Found in store "${store.$id}".`
+        `\tstate: () => new MyClass()\n` +
+        `Found in store "${store.$id}".`
     )
   }
 
@@ -739,7 +739,7 @@ function createSetupStore<
     isOptionsStore &&
     (options as DefineStoreOptions<Id, S, G, A>).hydrate
   ) {
-    ; (options as DefineStoreOptions<Id, S, G, A>).hydrate!(
+    ;(options as DefineStoreOptions<Id, S, G, A>).hydrate!(
       store.$state,
       initialState
     )
@@ -858,17 +858,17 @@ export function defineStore(
   let id: string
   let options:
     | DefineStoreOptions<
-      string,
-      StateTree,
-      _GettersTree<StateTree>,
-      _ActionsTree
-    >
+        string,
+        StateTree,
+        _GettersTree<StateTree>,
+        _ActionsTree
+      >
     | DefineSetupStoreOptions<
-      string,
-      StateTree,
-      _GettersTree<StateTree>,
-      _ActionsTree
-    >
+        string,
+        StateTree,
+        _GettersTree<StateTree>,
+        _ActionsTree
+      >
 
   const isSetupStore = typeof setup === 'function'
   if (typeof idOrOptions === 'string') {
@@ -886,22 +886,21 @@ export function defineStore(
       // in test mode, ignore the argument provided as we can always retrieve a
       // pinia instance with getActivePinia()
       (__TEST__ && activePinia && activePinia._testing ? null : pinia) ||
-      (currentInstance && inject(piniaSymbol))
+      (currentInstance && inject(piniaSymbol, null))
     if (pinia) setActivePinia(pinia)
 
     if (__DEV__ && !activePinia) {
       throw new Error(
         `[🍍]: getActivePinia was called with no active Pinia. Did you forget to install pinia?\n` +
-        `\tconst pinia = createPinia()\n` +
-        `\tapp.use(pinia)\n` +
-        `This will fail in production.`
+          `\tconst pinia = createPinia()\n` +
+          `\tapp.use(pinia)\n` +
+          `This will fail in production.`
       )
     }
 
     pinia = activePinia!
 
     if (!pinia._s.has(id)) {
-      // 创建store注册到pinia._s中
       // creating the store registers it in `pinia._s`
       if (isSetupStore) {
         createSetupStore(id, setup, options, pinia)
@@ -916,7 +915,6 @@ export function defineStore(
       }
     }
 
-    // 取出其中的store,根据store id
     const store: StoreGeneric = pinia._s.get(id)!
 
     if (__DEV__ && hot) {

@@ -1,4 +1,4 @@
-import {
+import type {
   ComputedRef,
   DebuggerEvent,
   Ref,
@@ -28,7 +28,7 @@ export function isPlainObject(
 }
 
 /**
- * Recursive `Partial<T>`. Used by {@link Store.$patch}.
+ * Recursive `Partial<T>`. Used by {@link Store['$patch']}.
  *
  * For internal use **only**
  */
@@ -80,6 +80,13 @@ export interface _SubscriptionCallbackMutationBase {
    * `id` of the store doing the mutation.
    */
   storeId: string
+
+  /**
+   * 🔴 DEV ONLY, DO NOT use for production code. Different mutation calls. Comes from
+   * https://vuejs.org/guide/extras/reactivity-in-depth.html#reactivity-debugging and allows to track mutations in
+   * devtools and plugins **during development only**.
+   */
+  events?: DebuggerEvent[] | DebuggerEvent
 }
 
 /**
@@ -91,9 +98,6 @@ export interface SubscriptionCallbackMutationDirect
   extends _SubscriptionCallbackMutationBase {
   type: MutationType.direct
 
-  /**
-   * DEV ONLY. Different mutation calls.
-   */
   events: DebuggerEvent
 }
 
@@ -105,9 +109,6 @@ export interface SubscriptionCallbackMutationPatchObject<S>
   extends _SubscriptionCallbackMutationBase {
   type: MutationType.patchObject
 
-  /**
-   * DEV ONLY. Array for patch calls.
-   */
   events: DebuggerEvent[]
 
   /**
@@ -124,9 +125,6 @@ export interface SubscriptionCallbackMutationPatchFunction
   extends _SubscriptionCallbackMutationBase {
   type: MutationType.patchFunction
 
-  /**
-   * DEV ONLY. Array of all the mutations done inside of the callback.
-   */
   events: DebuggerEvent[]
 
   /**
@@ -209,7 +207,7 @@ export interface _StoreOnActionListenerContext<
 
   /**
    * Sets up a hook if the action fails. Return `false` to catch the error and
-   * stop it fro propagating.
+   * stop it from propagating.
    */
   onError: (callback: (error: unknown) => void) => void
 }
@@ -413,6 +411,9 @@ export interface _StoreWithState<
    * Stops the associated effect scope of the store and remove it from the store
    * registry. Plugins can override this method to cleanup any added effects.
    * e.g. devtools plugin stops displaying disposed stores from devtools.
+   * Note this doesn't delete the state of the store, you have to do it manually with
+   * `delete pinia.state.value[store.$id]` if you want to. If you don't and the
+   * store is used again, it will reuse the previous state.
    */
   $dispose(): void
 
@@ -602,7 +603,7 @@ export type _ExtractActionsFromSetupStore<SS> = SS extends undefined | void
 export type _ExtractGettersFromSetupStore<SS> = SS extends undefined | void
   ? {}
   : _ExtractGettersFromSetupStore_Keys<SS> extends keyof SS
-  ? _UnwrapAll<Pick<SS, _ExtractGettersFromSetupStore_Keys<SS>>>
+  ? Pick<SS, _ExtractGettersFromSetupStore_Keys<SS>>
   : never
 
 /**

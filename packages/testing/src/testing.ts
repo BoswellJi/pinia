@@ -65,7 +65,7 @@ export interface TestingOptions {
 
 /**
  * Pinia instance specifically designed for testing. Extends a regular
- * {@link Pinia} instance with test specific properties.
+ * `Pinia` instance with test specific properties.
  */
 export interface TestingPinia extends Pinia {
   /** App used by Pinia */
@@ -114,7 +114,8 @@ export function createTestingPinia({
 
   const createSpy =
     _createSpy ||
-    (typeof jest !== 'undefined' && jest.fn) ||
+    // @ts-ignore
+    (typeof jest !== 'undefined' && (jest.fn as typeof _createSpy)) ||
     (typeof vi !== 'undefined' && vi.fn)
   /* istanbul ignore if */
   if (!createSpy) {

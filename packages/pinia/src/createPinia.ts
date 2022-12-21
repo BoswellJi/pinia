@@ -1,7 +1,7 @@
 import { Pinia, PiniaPlugin, setActivePinia, piniaSymbol } from './rootStore'
 import { ref, App, markRaw, effectScope, isVue2, Ref } from 'vue-demi'
 import { registerPiniaDevtools, devtoolsPlugin } from './devtools'
-import { IS_CLIENT } from './env'
+import { USE_DEVTOOLS } from './env'
 import { StateTree, StoreGeneric } from './types'
 
 /**
@@ -38,7 +38,7 @@ export function createPinia(): Pinia {
         // 将pinia实例添加到vue应用的全局属性上`$pinia`
         app.config.globalProperties.$pinia = pinia
         /* istanbul ignore else */
-        if (__DEV__ && IS_CLIENT) {
+        if (USE_DEVTOOLS) {
           registerPiniaDevtools(app, pinia)
         }
         // 保存pinia插件
@@ -70,9 +70,8 @@ export function createPinia(): Pinia {
   })
 
   // pinia devtools rely on dev only features so they cannot be forced unless
-  // the dev build of Vue is used
-  // We also don't need devtools in test mode
-  if (__DEV__ && IS_CLIENT && !__TEST__) {
+  // the dev build of Vue is used. Avoid old browsers like IE11.
+  if (USE_DEVTOOLS && typeof Proxy !== 'undefined') {
     pinia.use(devtoolsPlugin)
   }
 
