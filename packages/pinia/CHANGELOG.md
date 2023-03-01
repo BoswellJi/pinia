@@ -1,3 +1,27 @@
+## [2.0.32](https://github.com/vuejs/pinia/compare/pinia@2.0.31...pinia@2.0.32) (2023-02-21)
+
+### Bug Fixes
+
+- **types:** mapWritableState array ([a7ad90d](https://github.com/vuejs/pinia/commit/a7ad90d319c4fad29f40622a6b95e605c47377f9)), closes [#2014](https://github.com/vuejs/pinia/issues/2014)
+
+## [2.0.31](https://github.com/vuejs/pinia/compare/pinia@2.0.30...pinia@2.0.31) (2023-02-20)
+
+### Bug Fixes
+
+- **types:** mapWritableState array ([07eaf99](https://github.com/vuejs/pinia/commit/07eaf99a566ef5de4173b782504a163bd276e12e)), closes [#2014](https://github.com/vuejs/pinia/issues/2014)
+
+## [2.0.30](https://github.com/vuejs/pinia/compare/pinia@2.0.29...pinia@2.0.30) (2023-02-01)
+
+### Bug Fixes
+
+- avoid spread operator even in devtools code ([d2a4def](https://github.com/vuejs/pinia/commit/d2a4defc381ae8e023b45b05e4ac8588fe2add9e)), closes [#1885](https://github.com/vuejs/pinia/issues/1885)
+
+## [2.0.29](https://github.com/vuejs/pinia/compare/pinia@2.0.28...pinia@2.0.29) (2023-01-15)
+
+### Bug Fixes
+
+- **types:** type storeToRefs getters as ComputedRef ([#1898](https://github.com/vuejs/pinia/issues/1898)) ([dcf7ef0](https://github.com/vuejs/pinia/commit/dcf7ef0d3a6773da97c5cdde4b9a958492a15d7d))
+
 ## [2.0.28](https://github.com/vuejs/pinia/compare/pinia@2.0.27...pinia@2.0.28) (2022-12-09)
 
 ### Bug Fixes

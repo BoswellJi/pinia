@@ -1,7 +1,5 @@
 ---
-sidebar: "auto"
-editLinks: false
-sidebarDepth: 3
+editLink: false
 ---
 
 [API Documentation](../index.md) / [pinia](../modules/pinia.md) / PiniaCustomProperties
@@ -12,7 +10,7 @@ sidebarDepth: 3
 
 Interface to be extended by the user when they add properties through plugins.
 
-## Type parameters
+## Type parameters %{#Type-parameters}%
 
 | Name | Type |
 | :------ | :------ |
@@ -21,24 +19,24 @@ Interface to be extended by the user when they add properties through plugins.
 | `G` | [`_GettersTree`](../modules/pinia.md#_getterstree)<`S`\> |
 | `A` | [`_ActionsTree`](../modules/pinia.md#_actionstree) |
 
-## Accessors
+## Accessors %{#Accessors}%
 
-### route
+### route %{#Accessors-route}%
 
 • `get` **route**(): `RouteLocationNormalized`
 
-#### Returns
+#### Returns %{#Accessors-route-Returns}%
 
 `RouteLocationNormalized`
 
 • `set` **route**(`value`): `void`
 
-#### Parameters
+#### Parameters %{#Accessors-route-Parameters}%
 
 | Name | Type |
 | :------ | :------ |
 | `value` | `RouteLocationNormalizedLoaded` \| `Ref`<`RouteLocationNormalizedLoaded`\> |
 
-#### Returns
+#### Returns %{#Accessors-route-Returns_1}%
 
 `void`

@@ -5,10 +5,21 @@ Using Pinia with [Nuxt.js](https://nuxtjs.org/) is easier since Nuxt takes care 
 ## Installation
 
 ```bash
-yarn add @pinia/nuxt
+yarn add pinia @pinia/nuxt
 # or with npm
-npm install @pinia/nuxt
+npm install pinia @pinia/nuxt
 ```
+
+:::tip
+If you're using npm, you might encounter an _ERESOLVE unable to resolve dependency tree_ error. In that case, add the following to your `package.json`:
+
+```js
+"overrides": {
+  "vue": "latest"
+}
+```
+
+:::
 
 We supply a _module_ to handle everything for you, you only need to add it to `modules` in your `nuxt.config.js` file:
 
@@ -39,6 +50,15 @@ export default {
 }
 ```
 
+As with `onServerPrefetch()`, you don't need to do anything special if you want to call a store action within `asyncData()`:
+
+```vue
+<script setup>
+const store = useStore()
+const { data } = await useAsyncData('user', () => store.fetchUser())
+</script>
+```
+
 ## Auto imports
 
 By default `@pinia/nuxt` exposes one single auto import: `usePinia()`, which is similar to `getActivePinia()` but works better with Nuxt. You can add auto imports to make your life easier:
@@ -47,20 +67,14 @@ By default `@pinia/nuxt` exposes one single auto import: `usePinia()`, which is 
 // nuxt.config.js
 export default defineNuxtConfig({
   // ... other options
-  modules: [
-    // ...
-    [
-      '@pinia/nuxt',
-      {
-        autoImports: [
-          // automatically imports `defineStore`
-          'defineStore', // import { defineStore } from 'pinia'
-          // automatically imports `defineStore` as `definePiniaStore`
-          ['defineStore', 'definePiniaStore'], // import { defineStore as definePiniaStore } from 'pinia'
-        ],
-      },
+  modules: ['@pinia/nuxt'],
+  pinia: {
+    autoImports: [
+      // automatically imports `defineStore`
+      'defineStore', // import { defineStore } from 'pinia'
+      ['defineStore', 'definePiniaStore'], // import { defineStore as definePiniaStore } from 'pinia'
     ],
-  ],
+  },
 })
 ```
 

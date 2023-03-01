@@ -230,7 +230,6 @@ function createSetupStore<
   )
 
   /* istanbul ignore if */
-  // @ts-expect-error: active is an internal property
   if (__DEV__ && !pinia._e.active) {
     throw new Error('Pinia destroyed')
   }
@@ -397,7 +396,7 @@ function createSetupStore<
           })
       }
 
-      // allow the afterCallback to override the return value
+      // trigger after callbacks
       triggerSubscriptions(afterCallbackList, ret)
       return ret
     }
@@ -674,10 +673,11 @@ function createSetupStore<
     // avoid listing internal properties in devtools
     ;(['_p', '_hmrPayload', '_getters', '_customProperties'] as const).forEach(
       (p) => {
-        Object.defineProperty(store, p, {
-          value: store[p],
-          ...nonEnumerable,
-        })
+        Object.defineProperty(
+          store,
+          p,
+          assign({ value: store[p] }, nonEnumerable)
+        )
       }
     )
   }

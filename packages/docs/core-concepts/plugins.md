@@ -6,7 +6,7 @@ Pinia stores can be fully extended thanks to a low level API. Here is a list of 
 - Add new options when defining stores
 - Add new methods to stores
 - Wrap existing methods
-- Change or even cancel actions
+- Intercept actions and its results
 - Implement side effects like [Local Storage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
 - Apply **only** to specific stores
 
@@ -15,8 +15,8 @@ Plugins are added to the pinia instance with `pinia.use()`. The simplest example
 ```js
 import { createPinia } from 'pinia'
 
-// add a property named `secret` to every store that is created after this plugin is installed
-// this could be in a different file
+// add a property named `secret` to every store that is created
+// after this plugin is installed this could be in a different file
 function SecretPiniaPlugin() {
   return { secret: 'the cake is a lie' }
 }
@@ -269,6 +269,7 @@ When adding new properties to stores, you should also extend the `PiniaCustomPro
 
 ```ts
 import 'pinia'
+import type { Router } from 'vue-router'
 
 declare module 'pinia' {
   export interface PiniaCustomProperties {
@@ -278,6 +279,9 @@ declare module 'pinia' {
 
     // you can define simpler values too
     simpleNumber: number
+
+    // type the router added by the plugin above (#adding-new-external-properties)
+    router: Router
   }
 }
 ```
