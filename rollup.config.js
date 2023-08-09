@@ -74,6 +74,8 @@ packageBuilds.forEach((buildName) => {
   }
 })
 
+console.log(packageConfigs)
+
 export default packageConfigs
 
 function createConfig(buildName, output, plugins = []) {
