@@ -21,6 +21,7 @@
 - 🔌 Extensible
 - 🏗 Modular by design
 - 📦 Extremely light
+- ⛰️ Nuxt Module
 
 Pinia works with both Vue 2 and Vue 3.
 
@@ -36,16 +37,6 @@ Pinia is the most similar English pronunciation of the word _pineapple_ in Spani
 - [One-time donation via PayPal](https://paypal.me/posva)
 
 <!--sponsors start-->
-
-<h4 align="center">Gold Sponsors</h4>
-<p align="center">
-    <a href="https://vuejobs.com/?utm_source=vuerouter&utm_campaign=sponsor" target="_blank" rel="noopener noreferrer">
-    <picture>
-      <source srcset="https://posva-sponsors.pages.dev/logos/vuejobs.svg" media="(prefers-color-scheme: dark)" height="72px" alt="VueJobs" />
-      <img src="https://posva-sponsors.pages.dev/logos/vuejobs.svg" height="72px" alt="VueJobs" />
-    </picture>
-  </a>
-</p>
 
 <h4 align="center">Silver Sponsors</h4>
 <p align="center">
@@ -67,11 +58,11 @@ Pinia is the most similar English pronunciation of the word _pineapple_ in Spani
 <p align="center">
     <a href="https://stormier.ninja" target="_blank" rel="noopener noreferrer">
     <picture>
-      <source srcset="https://avatars.githubusercontent.com/u/2486424?u=7b0c73ae5d090ce53bf59473094e9606fe082c59&v=4" media="(prefers-color-scheme: dark)" height="26px" alt="Stanislas OrmiÃ¨res" />
-      <img src="https://avatars.githubusercontent.com/u/2486424?u=7b0c73ae5d090ce53bf59473094e9606fe082c59&v=4" height="26px" alt="Stanislas OrmiÃ¨res" />
+      <source srcset="https://avatars.githubusercontent.com/u/2486424?u=7b0c73ae5d090ce53bf59473094e9606fe082c59&v=4" media="(prefers-color-scheme: dark)" height="26px" alt="Stanislas Ormières" />
+      <img src="https://avatars.githubusercontent.com/u/2486424?u=7b0c73ae5d090ce53bf59473094e9606fe082c59&v=4" height="26px" alt="Stanislas Ormières" />
     </picture>
   </a>
-    <a href="www.vuejs.de" target="_blank" rel="noopener noreferrer">
+    <a href="https://www.vuejs.de" target="_blank" rel="noopener noreferrer">
     <picture>
       <source srcset="https://avatars.githubusercontent.com/u/4183726?u=6b50a8ea16de29d2982f43c5640b1db9299ebcd1&v=4" media="(prefers-color-scheme: dark)" height="26px" alt="Antony Konstantinidis" />
       <img src="https://avatars.githubusercontent.com/u/4183726?u=6b50a8ea16de29d2982f43c5640b1db9299ebcd1&v=4" height="26px" alt="Antony Konstantinidis" />
@@ -83,10 +74,10 @@ Pinia is the most similar English pronunciation of the word _pineapple_ in Spani
       <img src="https://posva-sponsors.pages.dev/logos/storyblok.png" height="26px" alt="Storyblok" />
     </picture>
   </a>
-    <a href="https://nuxtjs.org" target="_blank" rel="noopener noreferrer">
+    <a href="https://ui.nuxt.com/pro" target="_blank" rel="noopener noreferrer">
     <picture>
-      <source srcset="https://posva-sponsors.pages.dev/logos/nuxt-dark.svg" media="(prefers-color-scheme: dark)" height="26px" alt="NuxtJS" />
-      <img src="https://posva-sponsors.pages.dev/logos/nuxt-light.svg" height="26px" alt="NuxtJS" />
+      <source srcset="https://avatars.githubusercontent.com/u/81570812?v=4" media="(prefers-color-scheme: dark)" height="26px" alt="Nuxt UI Pro Templates" />
+      <img src="https://avatars.githubusercontent.com/u/81570812?v=4" height="26px" alt="Nuxt UI Pro Templates" />
     </picture>
   </a>
 </p>
@@ -155,6 +146,8 @@ new Vue({
   pinia,
 })
 ```
+
+For more detailed instructions, including [Nuxt configuration](https://pinia.vuejs.org/ssr/nuxt.html#nuxt-js), check the [Documentation](https://pinia.vuejs.org).
 
 ### Create a Store
 

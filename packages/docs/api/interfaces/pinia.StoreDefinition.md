@@ -8,37 +8,45 @@ editLink: false
 
 [pinia](../modules/pinia.md).StoreDefinition
 
-## Type parameters %{#Type-parameters}%
+Return type of `defineStore()`. Function that allows instantiating a store.
+
+## Type parameters
 
 | Name | Type |
 | :------ | :------ |
 | `Id` | extends `string` = `string` |
-| `S` | extends [`StateTree`](../modules/pinia.md#statetree) = [`StateTree`](../modules/pinia.md#statetree) |
-| `G` | [`_GettersTree`](../modules/pinia.md#_getterstree)<`S`\> |
-| `A` | [`_ActionsTree`](../modules/pinia.md#_actionstree) |
+| `S` | extends [`StateTree`](../modules/pinia.md#StateTree) = [`StateTree`](../modules/pinia.md#StateTree) |
+| `G` | [`_GettersTree`](../modules/pinia.md#_GettersTree)<`S`\> |
+| `A` | [`_ActionsTree`](../modules/pinia.md#_ActionsTree) |
 
-## Callable %{#Callable}%
+## Hierarchy
 
-### StoreDefinition %{#Callable-StoreDefinition}%
+- **`StoreDefinition`**
 
-▸ **StoreDefinition**(`pinia?`, `hot?`): [`Store`](../modules/pinia.md#store)<`Id`, `S`, `G`, `A`\>
+  ↳ [`SetupStoreDefinition`](pinia.SetupStoreDefinition.md)
+
+## Callable
+
+### StoreDefinition
+
+▸ **StoreDefinition**(`pinia?`, `hot?`): [`Store`](../modules/pinia.md#Store)<`Id`, `S`, `G`, `A`\>
 
 Returns a store, creates it if necessary.
 
-#### Parameters %{#Callable-StoreDefinition-Parameters}%
+#### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `pinia?` | ``null`` \| [`Pinia`](pinia.Pinia.md) | Pinia instance to retrieve the store |
-| `hot?` | [`StoreGeneric`](../modules/pinia.md#storegeneric) | dev only hot module replacement |
+| `hot?` | [`StoreGeneric`](../modules/pinia.md#StoreGeneric) | dev only hot module replacement |
 
-#### Returns %{#Callable-StoreDefinition-Returns}%
+#### Returns
 
-[`Store`](../modules/pinia.md#store)<`Id`, `S`, `G`, `A`\>
+[`Store`](../modules/pinia.md#Store)<`Id`, `S`, `G`, `A`\>
 
-## Properties %{#Properties}%
+## Properties
 
-### $id %{#Properties-$id}%
+### $id
 
 • **$id**: `Id`
 

@@ -1,9 +1,14 @@
-import path from 'path'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import ts from 'rollup-plugin-typescript2'
 import replace from '@rollup/plugin-replace'
-import resolve from '@rollup/plugin-node-resolve'
+import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
+import alias from '@rollup/plugin-alias'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 /** @type {import('rollup').RollupOptions[]} */
 const config = ['pinia'].map(createConfig)
@@ -17,13 +22,22 @@ export default config
  */
 function createConfig(file) {
   return {
-    external: ['vue'],
+    external: [
+      'vue',
+      // this is left to test things
+      // '@vue/devtools-api'
+    ],
     output: {
-      file: path.resolve(__dirname, `./dist/${file}.js`),
-      format: 'es',
+      file: resolve(__dirname, `./dist/${file}.js`),
+      format: 'esm',
     },
-    input: path.resolve(__dirname, `./src/${file}.js`),
+    input: resolve(__dirname, `./src/${file}.js`),
     plugins: [
+      alias({
+        entries: {
+          pinia: resolve(__dirname, '../pinia/dist/pinia.mjs'),
+        },
+      }),
       replace({
         preventAssignment: true,
         values: {
@@ -43,8 +57,8 @@ function createConfig(file) {
       }),
       ts({
         check: false,
-        tsconfig: path.resolve(__dirname, '../../tsconfig.json'),
-        cacheRoot: path.resolve(__dirname, '../../node_modules/.rts2_cache'),
+        tsconfig: resolve(__dirname, '../../tsconfig.json'),
+        cacheRoot: resolve(__dirname, '../../node_modules/.rts2_cache'),
         tsconfigOverride: {
           compilerOptions: {
             sourceMap: false,
@@ -54,7 +68,7 @@ function createConfig(file) {
           exclude: ['__tests__', 'test-dts'],
         },
       }),
-      resolve(),
+      nodeResolve(),
       commonjs(),
       terser({
         format: {
@@ -62,7 +76,7 @@ function createConfig(file) {
         },
         module: true,
         compress: {
-          ecma: 2015,
+          ecma: 2019,
           pure_getters: true,
         },
       }),

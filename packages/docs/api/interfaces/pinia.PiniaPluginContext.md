@@ -10,18 +10,18 @@ editLink: false
 
 Context argument passed to Pinia plugins.
 
-## Type parameters %{#Type-parameters}%
+## Type parameters
 
 | Name | Type |
 | :------ | :------ |
 | `Id` | extends `string` = `string` |
-| `S` | extends [`StateTree`](../modules/pinia.md#statetree) = [`StateTree`](../modules/pinia.md#statetree) |
-| `G` | [`_GettersTree`](../modules/pinia.md#_getterstree)<`S`\> |
-| `A` | [`_ActionsTree`](../modules/pinia.md#_actionstree) |
+| `S` | extends [`StateTree`](../modules/pinia.md#StateTree) = [`StateTree`](../modules/pinia.md#StateTree) |
+| `G` | [`_GettersTree`](../modules/pinia.md#_GettersTree)<`S`\> |
+| `A` | [`_ActionsTree`](../modules/pinia.md#_ActionsTree) |
 
-## Properties %{#Properties}%
+## Properties
 
-### app %{#Properties-app}%
+### app
 
 • **app**: `App`<`any`\>
 
@@ -29,7 +29,7 @@ Current app created with `Vue.createApp()`.
 
 ___
 
-### options %{#Properties-options}%
+### options
 
 • **options**: [`DefineStoreOptionsInPlugin`](pinia.DefineStoreOptionsInPlugin.md)<`Id`, `S`, `G`, `A`\>
 
@@ -37,7 +37,7 @@ Initial options defining the store when calling `defineStore()`.
 
 ___
 
-### pinia %{#Properties-pinia}%
+### pinia
 
 • **pinia**: [`Pinia`](pinia.Pinia.md)
 
@@ -45,8 +45,8 @@ pinia instance.
 
 ___
 
-### store %{#Properties-store}%
+### store
 
-• **store**: [`Store`](../modules/pinia.md#store)<`Id`, `S`, `G`, `A`\>
+• **store**: [`Store`](../modules/pinia.md#Store)<`Id`, `S`, `G`, `A`\>
 
 Current store being extended.

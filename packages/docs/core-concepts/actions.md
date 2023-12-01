@@ -54,7 +54,7 @@ export const useUsers = defineStore('users', {
 
 You are also completely free to set whatever arguments you want and return anything. When calling actions, everything will be automatically inferred!
 
-Actions are invoked like function or regular methods:
+Actions are invoked like regular functions and methods:
 
 ```vue
 <script setup>
@@ -157,7 +157,7 @@ export default {
   methods: {
     // gives access to this.increment() inside the component
     // same as calling from store.increment()
-    ...mapActions(useCounterStore, ['increment'])
+    ...mapActions(useCounterStore, ['increment']),
     // same as above but registers it as this.myOwnName()
     ...mapActions(useCounterStore, { myOwnName: 'increment' }),
   },
@@ -166,7 +166,7 @@ export default {
 
 ## Subscribing to actions
 
-It is possible to observe actions and their outcome with `store.$onAction()`. The callback passed to it is executed before the action itself. `after` handle promises and allows you to execute a function after the action resolves. In a similar way, `onError` allows you execute a function if the action throws or rejects. These are useful for tracking errors at runtime, similar to [this tip in the Vue docs](https://v3.vuejs.org/guide/tooling/deployment.html#tracking-runtime-errors).
+It is possible to observe actions and their outcome with `store.$onAction()`. The callback passed to it is executed before the action itself. `after` handles promises and allows you to execute a function after the action resolves. In a similar way, `onError` allows you to execute a function if the action throws or rejects. These are useful for tracking errors at runtime, similar to [this tip in the Vue docs](https://v3.vuejs.org/guide/tooling/deployment.html#tracking-runtime-errors).
 
 Here is an example that logs before running actions and after they resolve/reject.
 

@@ -2,7 +2,7 @@
  * @module pinia
  */
 export { setActivePinia, getActivePinia } from './rootStore'
-export { createPinia } from './createPinia'
+export { createPinia, disposePinia } from './createPinia'
 export type {
   Pinia,
   // TODO: remove in next release
@@ -12,7 +12,12 @@ export type {
 } from './rootStore'
 
 export { defineStore, skipHydrate } from './store'
-export type { StoreActions, StoreGetters, StoreState } from './store'
+export type {
+  StoreActions,
+  StoreGetters,
+  StoreState,
+  SetupStoreDefinition,
+} from './store'
 
 export type {
   StateTree,

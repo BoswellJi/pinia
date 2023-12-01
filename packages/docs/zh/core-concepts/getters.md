@@ -99,8 +99,8 @@ export const useStore = defineStore('main', {
 import { useUserListStore } from './store'
 const userList = useUserListStore()
 const { getUserById } = storeToRefs(userList)
-// note you will have to use `getUserById.value` to access
-// the function within the <script setup>
+// 请注意，你需要使用 `getUserById.value` 来访问
+// <script setup> 中的函数
 </script>
 
 <template>
@@ -182,7 +182,7 @@ export const useCounterStore = defineStore('counter', {
 
 ### 使用 `setup()` %{#with-setup}%
 
-虽然并不是每个开发者都会使用组合式 API，但 `setup()` 钩子依旧可以使 Pinia 在选项式 API 中更易用。并且不需要额外的映射辅助函数!
+虽然并不是每个开发者都会使用组合式 API，但 `setup()` 钩子依旧可以使 Pinia 在选项式 API 中更易用。并且不需要额外的映射辅助函数！
 
 ```vue
 <script>

@@ -6,6 +6,7 @@ export default defineConfig({
     __DEV__: true,
     __TEST__: true,
     __BROWSER__: true,
+    __USE_DEVTOOLS__: false,
   },
   resolve: {
     alias: [
@@ -25,6 +26,7 @@ export default defineConfig({
   },
   test: {
     isolate: false,
+    include: ['packages/**/*.spec.ts'],
     coverage: {
       reporter: ['html', 'lcov', 'text'],
       include: ['packages/pinia/src/**/*.ts', 'packages/testing/src/**/*.ts'],

@@ -2,6 +2,7 @@ import {
   watch,
   computed,
   inject,
+  hasInjectionContext,
   getCurrentInstance,
   reactive,
   DebuggerEvent,
@@ -47,9 +48,11 @@ import {
   _StoreWithState,
 } from './types'
 import { setActivePinia, piniaSymbol, Pinia, activePinia } from './rootStore'
-import { IS_CLIENT, USE_DEVTOOLS } from './env'
+import { IS_CLIENT } from './env'
 import { patchObject } from './hmr'
 import { addSubscription, triggerSubscriptions, noop } from './subscriptions'
+
+const fallbackRunWithContext = (fn: () => unknown) => fn()
 
 type _ArrayType<AT> = AT extends Array<infer T> ? T : never
 
@@ -179,7 +182,7 @@ function createOptionsStore<
             const store = pinia._s.get(id)!
 
             // allow cross using stores
-            /* istanbul ignore next */
+            /* istanbul ignore if */
             if (isVue2 && !store._r) return
 
             // @ts-expect-error
@@ -194,14 +197,6 @@ function createOptionsStore<
   }
 
   store = createSetupStore(id, setup, options, pinia, hot, true)
-
-  store.$reset = function $reset() {
-    const newState = state ? state() : {}
-    // we use a patch to group all changes into one single subscription
-    this.$patch(($state) => {
-      assign($state, newState)
-    })
-  }
 
   return store as any
 }
@@ -263,8 +258,8 @@ function createSetupStore<
   // internal state
   let isListening: boolean // set to true at the end
   let isSyncListening: boolean // set to true at the end
-  let subscriptions: SubscriptionCallback<S>[] = markRaw([])
-  let actionSubscriptions: StoreOnActionListener<Id, S, G, A>[] = markRaw([])
+  let subscriptions: SubscriptionCallback<S>[] = []
+  let actionSubscriptions: StoreOnActionListener<Id, S, G, A>[] = []
   let debuggerEvents: DebuggerEvent[] | DebuggerEvent
   const initialState = pinia.state.value[$id] as UnwrapRef<S> | undefined
 
@@ -329,8 +324,17 @@ function createSetupStore<
     )
   }
 
-  /* istanbul ignore next */
-  const $reset = __DEV__
+  const $reset = isOptionsStore
+    ? function $reset(this: _StoreWithState<Id, S, G, A>) {
+        const { state } = options as DefineStoreOptions<Id, S, G, A>
+        const newState = state ? state() : {}
+        // we use a patch to group all changes into one single subscription
+        this.$patch(($state) => {
+          assign($state, newState)
+        })
+      }
+    : /* istanbul ignore next */
+    __DEV__
     ? () => {
         throw new Error(
           `🍍: Store "${$id}" is built using the setup syntax and does not implement $reset().`
@@ -375,7 +379,7 @@ function createSetupStore<
         onError,
       })
 
-      let ret: any
+      let ret: unknown
       try {
         ret = action.apply(this && this.$id === $id ? this : store, args)
         // handle sync errors
@@ -454,7 +458,7 @@ function createSetupStore<
   }
 
   const store: Store<Id, S, G, A> = reactive(
-    __DEV__ || USE_DEVTOOLS
+    __DEV__ || (__USE_DEVTOOLS__ && IS_CLIENT)
       ? assign(
           {
             _hmrPayload,
@@ -469,13 +473,15 @@ function createSetupStore<
 
   // store the partial store now so the setup of stores can instantiate each other before they are finished without
   // creating infinite loops.
-  pinia._s.set($id, store)
+  pinia._s.set($id, store as Store)
+
+  const runWithContext =
+    (pinia._a && pinia._a.runWithContext) || fallbackRunWithContext
 
   // TODO: idea create skipSerialize that marks properties as non serializable and they are skipped
-  const setupStore = pinia._e.run(() => {
-    scope = effectScope()
-    return scope.run(() => setup())
-  })!
+  const setupStore = runWithContext(() =>
+    pinia._e.run(() => (scope = effectScope()).run(setup)!)
+  )!
 
   // overwrite existing actions to support $onAction
   for (const key in setupStore) {
@@ -662,7 +668,7 @@ function createSetupStore<
     })
   }
 
-  if (USE_DEVTOOLS) {
+  if (__USE_DEVTOOLS__ && IS_CLIENT) {
     const nonEnumerable = {
       writable: true,
       configurable: true,
@@ -691,10 +697,10 @@ function createSetupStore<
   // apply all plugins
   pinia._p.forEach((extender) => {
     /* istanbul ignore else */
-    if (USE_DEVTOOLS) {
+    if (__USE_DEVTOOLS__ && IS_CLIENT) {
       const extensions = scope.run(() =>
         extender({
-          store,
+          store: store as Store,
           app: pinia._a,
           pinia,
           options: optionsForPlugin,
@@ -709,7 +715,7 @@ function createSetupStore<
         store,
         scope.run(() =>
           extender({
-            store,
+            store: store as Store,
             app: pinia._a,
             pinia,
             options: optionsForPlugin,
@@ -878,22 +884,27 @@ export function defineStore(
   } else {
     options = idOrOptions
     id = idOrOptions.id
+
+    if (__DEV__ && typeof id !== 'string') {
+      throw new Error(
+        `[🍍]: "defineStore()" must be passed a store id as its first argument.`
+      )
+    }
   }
 
   function useStore(pinia?: Pinia | null, hot?: StoreGeneric): StoreGeneric {
-    const currentInstance = getCurrentInstance()
+    const hasContext = hasInjectionContext()
     pinia =
       // in test mode, ignore the argument provided as we can always retrieve a
       // pinia instance with getActivePinia()
       (__TEST__ && activePinia && activePinia._testing ? null : pinia) ||
-      (currentInstance && inject(piniaSymbol, null))
+      (hasContext ? inject(piniaSymbol, null) : null)
     if (pinia) setActivePinia(pinia)
 
     if (__DEV__ && !activePinia) {
       throw new Error(
-        `[🍍]: getActivePinia was called with no active Pinia. Did you forget to install pinia?\n` +
-          `\tconst pinia = createPinia()\n` +
-          `\tapp.use(pinia)\n` +
+        `[🍍]: "getActivePinia()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\n` +
+          `See https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\n` +
           `This will fail in production.`
       )
     }
@@ -930,18 +941,19 @@ export function defineStore(
       pinia._s.delete(hotId)
     }
 
-    // save stores in instances to access them devtools
-    if (
-      __DEV__ &&
-      IS_CLIENT &&
-      currentInstance &&
-      currentInstance.proxy &&
-      // avoid adding stores that are just built for hot module replacement
-      !hot
-    ) {
-      const vm = currentInstance.proxy
-      const cache = '_pStores' in vm ? vm._pStores! : (vm._pStores = {})
-      cache[id] = store
+    if (__DEV__ && IS_CLIENT) {
+      const currentInstance = getCurrentInstance()
+      // save stores in instances to access them devtools
+      if (
+        currentInstance &&
+        currentInstance.proxy &&
+        // avoid adding stores that are just built for hot module replacement
+        !hot
+      ) {
+        const vm = currentInstance.proxy
+        const cache = '_pStores' in vm ? vm._pStores! : (vm._pStores = {})
+        cache[id] = store
+      }
     }
 
     // StoreGeneric cannot be casted towards Store
@@ -952,3 +964,17 @@ export function defineStore(
 
   return useStore
 }
+
+/**
+ * Return type of `defineStore()` with a setup function.
+ * - `Id` is a string literal of the store's name
+ * - `SS` is the return type of the setup function
+ * @see {@link StoreDefinition}
+ */
+export interface SetupStoreDefinition<Id extends string, SS>
+  extends StoreDefinition<
+    Id,
+    _ExtractStateFromSetupStore<SS>,
+    _ExtractGettersFromSetupStore<SS>,
+    _ExtractActionsFromSetupStore<SS>
+  > {}

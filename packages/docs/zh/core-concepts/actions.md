@@ -58,11 +58,11 @@ Action 可以像函数或者通常意义上的方法一样被调用：
 ```vue
 <script setup>
 const store = useCounterStore()
-// call the action as a method of the store
+// 将 action 作为 store 的方法进行调用
 store.randomizeCounter()
 </script>
 <template>
-  <!-- Even on the template -->
+  <!-- 即使在模板中也可以 -->
   <button @click="store.randomizeCounter()">Randomize</button>
 </template>
 ```
@@ -162,7 +162,7 @@ export default {
 
 ## 订阅 action %{#subscribing-to-actions}%
 
-你可以通过 `store.$onAction()` 来监听 action 和它们的结果。传递给它的回调函数会在 action 本身之前执行。`after` 表示在 promise 解决之后，允许你在 action 解决后执行一个一个回调函数。同样地，`onError` 允许你在 action 抛出错误或 reject 时执行一个回调函数。这些函数对于追踪运行时错误非常有用，类似于[Vue docs 中的这个提示](https://v3.vuejs.org/guide/tooling/deployment.html#tracking-runtime-errors)。
+你可以通过 `store.$onAction()` 来监听 action 和它们的结果。传递给它的回调函数会在 action 本身之前执行。`after` 表示在 promise 解决之后，允许你在 action 解决后执行一个回调函数。同样地，`onError` 允许你在 action 抛出错误或 reject 时执行一个回调函数。这些函数对于追踪运行时错误非常有用，类似于[Vue docs 中的这个提示](https://v3.vuejs.org/guide/tooling/deployment.html#tracking-runtime-errors)。
 
 这里有一个例子，在运行 action 之前以及 action resolve/reject 之后打印日志记录。
 
@@ -208,7 +208,7 @@ unsubscribe()
 ```vue
 <script setup>
 const someStore = useSomeStore()
-// this subscription will be kept even after the component is unmounted
+// 此订阅器即便在组件卸载之后仍会被保留
 someStore.$onAction(callback, true)
 </script>
 ```

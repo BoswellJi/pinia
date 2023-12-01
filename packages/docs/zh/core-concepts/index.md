@@ -77,7 +77,7 @@ Setup store 比 [Option Store](#option-stores) 带来了更多的灵活性，因
 ```vue
 <script setup>
 import { useCounterStore } from '@/stores/counter'
-// access the `store` variable anywhere in the component ✨
+// 可以在组件中的任意位置访问 `store` 变量 ✨
 const store = useCounterStore()
 </script>
 ```
@@ -93,16 +93,16 @@ const store = useCounterStore()
 ```vue
 <script setup>
 const store = useCounterStore()
-// ❌ This won't work because it breaks reactivity
-// it's the same as destructuring from `props`
+// ❌ 这将不起作用，因为它破坏了响应性
+// 这就和直接解构 `props` 一样
 const { name, doubleCount } = store // [!code warning]
-name // will always be "Eduardo" // [!code warning]
-doubleCount // will always be 0 // [!code warning]
+name // 将始终是 "Eduardo" // [!code warning]
+doubleCount // 将始终是 0 // [!code warning]
 setTimeout(() => {
   store.increment()
 }, 1000)
-// ✅ this one will be reactive
-// 💡 but you could also just use `store.doubleCount` directly
+// ✅ 这样写是响应式的
+// 💡 当然你也可以直接使用 `store.doubleCount`
 const doubleValue = computed(() => store.doubleCount)
 </script>
 ```
@@ -113,11 +113,11 @@ const doubleValue = computed(() => store.doubleCount)
 <script setup>
 import { storeToRefs } from 'pinia'
 const store = useCounterStore()
-// `name` and `doubleCount` are reactive refs
-// This will also extract refs for properties added by plugins
-// but skip any action or non reactive (non ref/reactive) property
+// `name` 和 `doubleCount` 是响应式的 ref
+// 同时通过插件添加的属性也会被提取为 ref
+// 并且会跳过所有的 action 或非响应式 (不是 ref 或 reactive) 的属性
 const { name, doubleCount } = storeToRefs(store)
-// the increment action can just be destructured
+// 作为 action 的 increment 可以直接解构
 const { increment } = store
 </script>
 ```

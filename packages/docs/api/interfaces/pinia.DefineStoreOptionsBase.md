@@ -12,14 +12,14 @@ Options passed to `defineStore()` that are common between option and setup
 stores. Extend this interface if you want to add custom options to both kinds
 of stores.
 
-## Type parameters %{#Type-parameters}%
+## Type parameters
 
 | Name | Type |
 | :------ | :------ |
-| `S` | extends [`StateTree`](../modules/pinia.md#statetree) |
+| `S` | extends [`StateTree`](../modules/pinia.md#StateTree) |
 | `Store` | `Store` |
 
-## Hierarchy %{#Hierarchy}%
+## Hierarchy
 
 - **`DefineStoreOptionsBase`**
 

@@ -322,7 +322,7 @@ export interface _StoreWithState<
   A /* extends ActionsTree */
   > extends StoreProperties<Id> {
   /**
-   * State of the Store. Setting it will replace the whole state.
+   * State of the Store. Setting it will internally call `$patch()` to update the state.
    */
   $state: UnwrapRef<S> & PiniaCustomStateProperties<S>
 
@@ -338,7 +338,7 @@ export interface _StoreWithState<
    * Sets or arrays and applying an object patch isn't practical, e.g. appending
    * to an array. The function passed to `$patch()` **must be synchronous**.
    *
-   * @param stateMutator - function that mutates `state`, cannot be async
+   * @param stateMutator - function that mutates `state`, cannot be asynchronous
    */
   $patch<F extends (state: UnwrapRef<S>) => any>(
     // this prevents the user from using `async` which isn't allowed
@@ -347,7 +347,6 @@ export interface _StoreWithState<
 
   /**
    * Resets the store to its initial state by building a new state object.
-   * TODO: make this options only
    */
   $reset(): void
 

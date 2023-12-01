@@ -104,7 +104,7 @@ pinia.use(({ store }) => {
 
 ### 添加新的 state %{#adding-new-state}%
 
-如果你想给 store 添加新的 state 属性，或者在激活过程中使用的属性，**你必须同时在两个地方添加它**。
+如果你想给 store 添加新的 state 属性或者在服务端渲染的激活过程中使用的属性，**你必须同时在两个地方添加它**。。
 
 - 在 `store` 上，然后你才可以用 `store.myState` 访问它。
 - 在 `store.$state` 上，然后你才可以在 devtools 中使用它，并且，**在 SSR 时被正确序列化(serialized)**。
@@ -279,7 +279,7 @@ declare module 'pinia' {
     // 你也可以定义更简单的值
     simpleNumber: number
 
-     // type the router added by the plugin above (#adding-new-external-properties)
+    // 添加路由(#adding-new-external-properties)
     router: Router
   }
 }
@@ -366,7 +366,7 @@ declare module 'pinia' {
 
 ## Nuxt.js %{#nuxt-js}%
 
-当[在 Nuxt 中使用 pinia](../ssr/nuxt.md) 时，你必须先创建一个 [Nuxt 插件](https://nuxtjs.org/docs/2.x/directory-structure/plugins)。这样你才能访问到 `pinia` 实例：
+当[在 Nuxt 中使用 pinia](../ssr/nuxt.md) 时，你必须先创建一个 [Nuxt 插件](https://nuxt.com/docs/guide/directory-structure/plugins)。这样你才能访问到 `pinia` 实例：
 
 ```ts
 // plugins/myPiniaPlugin.js
