@@ -1,5 +1,10 @@
 # Server Side Rendering (SSR)
 
+<MasteringPiniaLink
+  href="https://masteringpinia.com/lessons/ssr-friendly-state"
+  title="Learn about SSR best practices"
+/>
+
 :::tip
 If you are using **Nuxt.js,** you need to read [**these instructions**](./nuxt.md) instead.
 :::
@@ -92,7 +97,7 @@ const pinia = createPinia()
 const app = createApp(App)
 app.use(pinia)
 
-// `isClient` depends on the environment, e.g. on Nuxt it's `process.client`
+// `isClient` depends on the environment, e.g. on Nuxt it's `import.meta.client`
 if (isClient) {
   pinia.state.value = JSON.parse(window.__pinia)
 }

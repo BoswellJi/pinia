@@ -1,14 +1,19 @@
 # Getter %{#getters}%
 
-<VueSchoolLink
+<!-- <VueSchoolLink
   href="https://vueschool.io/lessons/getters-in-pinia"
+  title="Learn all about getters in Pinia"
+/> -->
+
+<MasteringPiniaLink
+  href="https://masteringpinia.com/lessons/the-3-pillars-of-pinia-getters"
   title="Learn all about getters in Pinia"
 />
 
 Getter 完全等同于 store 的 state 的[计算值](https://cn.vuejs.org/guide/essentials/computed.html)。可以通过 `defineStore()` 中的 `getters` 属性来定义它们。**推荐**使用箭头函数，并且它将接收 `state` 作为第一个参数：
 
 ```js
-export const useStore = defineStore('main', {
+export const useCounterStore = defineStore('counter', {
   state: () => ({
     count: 0,
   }),
@@ -21,7 +26,7 @@ export const useStore = defineStore('main', {
 大多数时候，getter 仅依赖 state，不过，有时它们也可能会使用其他 getter。因此，即使在使用常规函数定义 getter 时，我们也可以通过 `this` 访问到**整个 store 实例**，**但(在 TypeScript 中)必须定义返回类型**。这是为了避免 TypeScript 的已知缺陷，**不过这不影响用箭头函数定义的 getter，也不会影响不使用 `this` 的 getter**。
 
 ```ts
-export const useStore = defineStore('main', {
+export const useCounterStore = defineStore('counter', {
   state: () => ({
     count: 0,
   }),
@@ -44,8 +49,10 @@ export const useStore = defineStore('main', {
 ```vue
 <script setup>
 import { useCounterStore } from './counterStore'
+
 const store = useCounterStore()
 </script>
+
 <template>
   <p>Double count is {{ store.doubleCount }}</p>
 </template>
@@ -56,7 +63,7 @@ const store = useCounterStore()
 与计算属性一样，你也可以组合多个 getter。通过 `this`，你可以访问到其他任何 getter。即使你没有使用 TypeScript，你也可以用 [JSDoc](https://jsdoc.app/tags-returns.html) 来让你的 IDE 提示类型。
 
 ```js
-export const useStore = defineStore('main', {
+export const useCounterStore = defineStore('counter', {
   state: () => ({
     count: 0,
   }),
@@ -80,10 +87,10 @@ export const useStore = defineStore('main', {
 
 ## 向 getter 传递参数 %{#passing-arguments-to-getters}%
 
-*Getter* 只是幕后的**计算**属性，所以不可以向它们传递任何参数。不过，你可以从 *getter* 返回一个函数，该函数可以接受任意参数：
+_Getter_ 只是幕后的**计算**属性，所以不可以向它们传递任何参数。不过，你可以从 _getter_ 返回一个函数，该函数可以接受任意参数：
 
 ```js
-export const useStore = defineStore('main', {
+export const useUserListStore = defineStore('userList', {
   getters: {
     getUserById: (state) => {
       return (userId) => state.users.find((user) => user.id === userId)
@@ -111,7 +118,7 @@ const { getUserById } = storeToRefs(userList)
 请注意，当你这样做时，**getter 将不再被缓存**，它们只是一个被你调用的函数。不过，你可以在 getter 本身中缓存一些结果，虽然这种做法并不常见，但有证明表明它的性能会更好：
 
 ```js
-export const useStore = defineStore('main', {
+export const useUserListStore = defineStore('userList', {
   getters: {
     getActiveUserById(state) {
       const activeUsers = state.users.filter((user) => user.active)
@@ -123,7 +130,7 @@ export const useStore = defineStore('main', {
 
 ## 访问其他 store 的 getter %{#accessing-other-stores-getters}%
 
-想要使用另一个 store 的 getter 的话，那就直接在 *getter* 内使用就好：
+想要使用另一个 store 的 getter 的话，那就直接在 _getter_ 内使用就好：
 
 ```js
 import { useOtherStore } from './other-store'
@@ -222,7 +229,7 @@ export default {
     ...mapState(useCounterStore, {
       myOwnName: 'doubleCount',
       // 你也可以写一个函数来获得对 store 的访问权
-      double: store => store.doubleCount,
+      double: (store) => store.doubleCount,
     }),
   },
 }

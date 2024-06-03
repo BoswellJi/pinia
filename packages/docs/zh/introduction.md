@@ -1,15 +1,21 @@
 # 简介 %{#introduction}%
 
-<VueSchoolLink
+<!-- <VueSchoolLink
   href="https://vueschool.io/lessons/introduction-to-pinia"
   title="Get started with Pinia"
+/> -->
+
+<MasteringPiniaLink
+  href="https://play.gumlet.io/embed/651ecf274c2f339c6860e36b"
+  mp-link="https://masteringpinia.com/lessons/the-what-and-why-of-state-management-and-stores"
+  title="Create your own Pinia from scratch"
 />
 
 Pinia [起始](https://github.com/vuejs/pinia/commit/06aeef54e2cad66696063c62829dac74e15fd19e)于 2019 年 11 月左右的一次实验，其目的是设计一个拥有[组合式 API](https://github.com/vuejs/composition-api) 的 Vue 状态管理库。从那时起，我们就倾向于同时支持 Vue 2 和 Vue 3，并且不强制要求开发者使用组合式 API，我们的初心至今没有改变。除了**安装**和 **SSR** 两章之外，其余章节中提到的 API 均支持 Vue 2 和 Vue 3。虽然本文档主要是面向 Vue 3 的用户，但在必要时会标注出 Vue 2 的内容，因此 Vue 2 和 Vue 3 的用户都可以阅读本文档。
 
 ## 为什么你应该使用 Pinia？%{#why-should-i-use-pinia}%
 
-Pinia 是 Vue 的专属状态管理库，它允许你跨组件或页面共享状态。如果你熟悉组合式 API 的话，你可能会认为可以通过一行简单的 `export const state = reactive({})` 来共享一个全局状态。对于单页应用来说确实可以，但如果应用在服务器端渲染，这可能会使你的应用暴露出一些安全漏洞。 而如果使用 Pinia，即使在小型单页应用中，你也可以获得如下功能：
+Pinia 是 Vue 的专属状态管理库，它允许你跨组件或页面共享状态。如果你熟悉组合式 API 的话，你可能会认为可以通过一行简单的 `export const state = reactive({})` 来共享一个全局状态。对于单页应用来说确实可以，但如果应用在服务器端渲染，这可能会使你的应用暴露出一些[安全漏洞](https://cn.vuejs.org/guide/scaling-up/ssr#cross-request-state-pollution)。 而如果使用 Pinia，即使在小型单页应用中，你也可以获得如下功能：
 
 - Devtools 支持
   - 追踪 actions、mutations 的时间线
@@ -112,9 +118,9 @@ export default defineComponent({
 
 你将会在核心概念部分了解到更多关于每个**映射辅助函数**的信息。
 
-## 为什么取名 *Pinia*？%{#why-pinia}%
+## 为什么取名 _Pinia_？%{#why-pinia}%
 
-Pinia (发音为 `/piːnjʌ/`，类似英文中的 “peenya”) 是最接近有效包名 piña (西班牙语中的 *pineapple*，即“菠萝”) 的词。 菠萝花实际上是一组各自独立的花朵，它们结合在一起，由此形成一个多重的水果。 与 Store 类似，每一个都是独立诞生的，但最终它们都是相互联系的。 它(菠萝)也是一种原产于南美洲的美味热带水果。
+Pinia (发音为 `/piːnjʌ/`，类似英文中的 “peenya”) 是最接近有效包名 piña (西班牙语中的 _pineapple_，即“菠萝”) 的词。 菠萝花实际上是一组各自独立的花朵，它们结合在一起，由此形成一个多重的水果。 与 Store 类似，每一个都是独立诞生的，但最终它们都是相互联系的。 它(菠萝)也是一种原产于南美洲的美味热带水果。
 
 ## 更真实的示例 %{#a-more-realistic-example}%
 
@@ -182,7 +188,7 @@ Pinia 起源于一次探索 Vuex 下一个迭代的实验，因此结合了 Vuex
 
 Pinia API 与 Vuex(<=4) 也有很多不同，即：
 
-- *mutation* 已被弃用。它们经常被认为是**极其冗余的**。它们初衷是带来 devtools 的集成方案，但这已不再是一个问题了。
+- _mutation_ 已被弃用。它们经常被认为是**极其冗余的**。它们初衷是带来 devtools 的集成方案，但这已不再是一个问题了。
 - 无需要创建自定义的复杂包装器来支持 TypeScript，一切都可标注类型，API 的设计方式是尽可能地利用 TS 类型推理。
 - 无过多的魔法字符串注入，只需要导入函数并调用它们，然后享受自动补全的乐趣就好。
 - 无需要动态添加 Store，它们默认都是动态的，甚至你可能都不会注意到这点。注意，你仍然可以在任何时候手动使用一个 Store 来注册它，但因为它是自动的，所以你不需要担心它。

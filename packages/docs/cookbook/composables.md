@@ -4,6 +4,11 @@
 
 ## Option Stores
 
+<MasteringPiniaLink
+  href="https://masteringpinia.com/lessons/using-composables-in-option-stores"
+  title="Using Composables in Option Stores"
+/>
+
 When defining an option store, you can call a composable inside of the `state` property:
 
 ```ts
@@ -27,6 +32,11 @@ Here are some examples of composables that cannot be used in an option stores (b
 
 ## Setup Stores
 
+<MasteringPiniaLink
+  href="https://masteringpinia.com/lessons/using-composables-in-setup-stores"
+  title="Using Composables in Setup Stores"
+/>
+
 On the other hand, when defining a setup store, you can use almost any composable since every property gets discerned into state, action, or getter:
 
 ```ts
@@ -34,7 +44,7 @@ import { defineStore, skipHydrate } from 'pinia'
 import { useMediaControls } from '@vueuse/core'
 
 export const useVideoPlayer = defineStore('video', () => {
-  // we won't expose this element directly
+  // we won't expose (return) this element directly
   const videoElement = ref<HTMLVideoElement>()
   const src = ref('/data/video.mp4')
   const { playing, volume, currentTime, togglePictureInPicture } =
@@ -56,6 +66,10 @@ export const useVideoPlayer = defineStore('video', () => {
   }
 })
 ```
+
+:::warning
+Differently from regular state, `ref<HTMLVideoElement>()` contains a non-serializable reference to the DOM element. This is why we don't return it directly. Since it's client-only state, we know it won't be set on the server and will **always** start as `undefined` on the client.
+:::
 
 ## SSR
 

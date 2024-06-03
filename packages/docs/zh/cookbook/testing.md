@@ -1,5 +1,10 @@
 # store 测试 %{#testing-stores}%
 
+<MasteringPiniaLink
+  href="https://play.gumlet.io/embed/65f9a9c10bfab01f414c25dc"
+  title="Watch a free video of Mastering Pinia about testing stores"
+/>
+
 从设计上来说，许多地方都会使用 store，所以可能比正常情况更难测试。但幸运的是，这不一定是真的。在测试 store 时，我们需要注意三件事：
 
 - `pinia` 实例：没有它，store 不能正常工作
@@ -13,7 +18,7 @@
   - [对组件单元测试](#unit-testing-components)
     - [初始 state](#initial-state)
     - [自定义 action 的行为](#customizing-behavior-of-actions)
-    - [指定 createSpy 函数](#specifying-the-creespy-function)
+    - [指定 createSpy 函数](#specifying-the-createspy-function)
     - [Mocking getters](#mocking-getters)
     - [Pinia 插件](#pinia-plugins)
   - [端到端测试](#e2e-tests)
@@ -79,7 +84,7 @@ beforeEach(() => {
 npm i -D @pinia/testing
 ```
 
-确保挂在组件时，在你的测试中创建一个用于测试的 pinia 实例：
+确保挂载组件时，在你的测试中创建一个用于测试的 pinia 实例：
 
 ```js
 import { mount } from '@vue/test-utils'
@@ -113,7 +118,7 @@ expect(store.someAction).toHaveBeenLastCalledWith()
 
 ### 初始 State %{#initial-state}%
 
-在创建测试 Pinia 时，你可以通过传递一个 `initialState` 对象来设置**所有 store 的初始状态**。这个对象将被 pinia 的测试实例用于创建 store 时 *patch* store。比方说，你想初始化这个 store 的状态：
+在创建测试 Pinia 时，你可以通过传递一个 `initialState` 对象来设置**所有 store 的初始状态**。这个对象将被 pinia 的测试实例用于创建 store 时 _patch_ store。比方说，你想初始化这个 store 的状态：
 
 ```ts
 import { defineStore } from 'pinia'
@@ -124,7 +129,7 @@ const useCounterStore = defineStore('counter', {
 })
 ```
 
-由于 store 的名字是 *"counter"*，所以你需要传递相应的对象给 `initialState`：
+由于 store 的名字是 _"counter"_，所以你需要传递相应的对象给 `initialState`：
 
 ```ts
 // 在测试中的某处

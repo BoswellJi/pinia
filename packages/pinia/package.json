@@ -1,6 +1,6 @@
 {
   "name": "pinia",
-  "version": "2.1.7",
+  "version": "2.1.8-beta.0",
   "description": "Intuitive, type safe and flexible Store for Vue",
   "main": "index.js",
   "module": "dist/pinia.mjs",
@@ -39,7 +39,7 @@
     "build:dts": "api-extractor run --local --verbose && tail -n +3 ./src/globalExtensions.ts >> dist/pinia.d.ts",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l pinia -r 1",
     "test:dts": "tsc -p ./test-dts/tsconfig.json",
-    "test": "yarn run build && yarn run build:dts && yarn test:dts"
+    "test": "pnpm run build && pnpm run build:dts && pnpm test:dts"
   },
   "files": [
     "dist/*.js",
@@ -69,12 +69,12 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@microsoft/api-extractor": "7.38.2",
-    "@vue/test-utils": "^2.4.1"
+    "@microsoft/api-extractor": "7.43.1",
+    "@vue/test-utils": "^2.4.5"
   },
   "dependencies": {
-    "@vue/devtools-api": "^6.5.1",
-    "vue-demi": ">=0.14.6"
+    "@vue/devtools-api": "^6.6.1",
+    "vue-demi": ">=0.14.7"
   },
   "peerDependencies": {
     "@vue/composition-api": "^1.4.0",

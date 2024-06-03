@@ -1,5 +1,10 @@
 # Plugins
 
+<MasteringPiniaLink
+  href="https://masteringpinia.com/lessons/What-is-a-pinia-plugin"
+  title="Learn all about Pinia plugins"
+/>
+
 Pinia stores can be fully extended thanks to a low level API. Here is a list of things you can do:
 
 - Add new properties to stores
@@ -84,7 +89,7 @@ pinia.use(({ store }) => {
 })
 ```
 
-Note that every store is wrapped with [`reactive`](https://v3.vuejs.org/api/basic-reactivity.html#reactive), automatically unwrapping any Ref (`ref()`, `computed()`, ...) it contains:
+Note that every store is wrapped with [`reactive`](https://vuejs.org/api/reactivity-core#reactive), automatically unwrapping any Ref (`ref()`, `computed()`, ...) it contains:
 
 ```js
 const sharedRef = ref('shared')
@@ -117,7 +122,7 @@ import { toRef, ref } from 'vue'
 pinia.use(({ store }) => {
   // to correctly handle SSR, we need to make sure we are not overriding an
   // existing value
-  if (!Object.prototype.hasOwnProperty(store.$state, 'hasError')) {
+  if (!store.$state.hasOwnProperty('hasError')) {
     // hasError is defined within the plugin, so each store has their individual
     // state property
     const hasError = ref(false)
@@ -144,7 +149,7 @@ If you are using **Vue 2**, Pinia is subject to the [same reactivity caveats](ht
 ```js
 import { set, toRef } from '@vue/composition-api'
 pinia.use(({ store }) => {
-  if (!Object.prototype.hasOwnProperty(store.$state, 'secret')) {
+  if (!store.$state.hasOwnProperty('secret')) {
     const secretRef = ref('secret')
     // If the data is meant to be used during SSR, you should
     // set it on the `$state` property so it is serialized and
@@ -169,21 +174,21 @@ import { toRef, ref } from 'vue'
 
 pinia.use(({ store }) => {
   // this is the same code as above for reference
-  if (!Object.prototype.hasOwnProperty(store.$state, 'hasError')) {
+  if (!store.$state.hasOwnProperty('hasError')) {
     const hasError = ref(false)
     store.$state.hasError = hasError
   }
   store.hasError = toRef(store.$state, 'hasError')
 
- // make sure to set the context (`this`) to the store
+  // make sure to set the context (`this`) to the store
   const originalReset = store.$reset.bind(store)
 
- // override the $reset function
+  // override the $reset function
   return {
     $reset() {
       originalReset()
       store.hasError = false
-    }
+    },
   }
 })
 ```
@@ -397,7 +402,7 @@ There is also a `StoreGetters` type to extract the _getters_ from a Store type. 
 
 When [using pinia alongside Nuxt](../ssr/nuxt.md), you will have to create a [Nuxt plugin](https://nuxt.com/docs/guide/directory-structure/plugins) first. This will give you access to the `pinia` instance:
 
-```ts
+```ts{14-16}
 // plugins/myPiniaPlugin.ts
 import { PiniaPluginContext } from 'pinia'
 
@@ -416,13 +421,17 @@ export default defineNuxtPlugin(({ $pinia }) => {
 })
 ```
 
-Note the above example is using TypeScript, you have to remove the type annotations `PiniaPluginContext` and `Plugin` as well as their imports if you are using a `.js` file.
+::: info
+
+The above example is using TypeScript, you have to remove the type annotations `PiniaPluginContext` and `Plugin` as well as their imports if you are using a `.js` file.
+
+:::
 
 ### Nuxt.js 2
 
 If you are using Nuxt.js 2, the types are slightly different:
 
-```ts
+```ts{3,15-17}
 // plugins/myPiniaPlugin.ts
 import { PiniaPluginContext } from 'pinia'
 import { Plugin } from '@nuxt/types'

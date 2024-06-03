@@ -6,7 +6,9 @@ const counter = useCounter()
 useTestStore()
 useSomeStoreStore()
 
-if (process.server) {
+// await useAsyncData('counter', () => counter.asyncIncrement().then(() => true))
+
+if (import.meta.server) {
   counter.increment()
 }
 </script>

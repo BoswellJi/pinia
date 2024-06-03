@@ -1,8 +1,14 @@
 # Defining a Store
 
-<VueSchoolLink
+<!-- <VueSchoolLink
   href="https://vueschool.io/lessons/define-your-first-pinia-store"
   title="Learn how to define and use stores in Pinia"
+/> -->
+
+<MasteringPiniaLink
+  href="https://play.gumlet.io/embed/651ecff2e4c322668b0a17af"
+  mp-link="https://masteringpinia.com/lessons/quick-start-with-pinia"
+  title="Get started with Pinia"
 />
 
 Before diving into core concepts, we need to know that a store is defined using `defineStore()` and that it requires a **unique** name, passed as the first argument:
@@ -68,15 +74,16 @@ In _Setup Stores_:
 - `computed()`s become `getters`
 - `function()`s become `actions`
 
-Note you **must** return **all state properties** in setup stores for pinia to pick them up as state. In other words, you cannot have _private_ state properties in stores. Not returning all state properties can break SSR, devtools, and other plugins.
+Note that you **must** return **all state properties** in setup stores for Pinia to pick them up as state. In other words, you cannot have _private_ state properties in stores. Not returning all state properties can break [SSR](../cookbook/composables.md), devtools, and other plugins.
 
-Setup stores bring a lot more flexibility than [Option Stores](#option-stores) as you can create watchers within a store and freely use any [composable](https://vuejs.org/guide/reusability/composables.html#composables). However, keep in mind that using composables will get more complex when using [SSR](../cookbook/composables.md).
+Setup stores bring a lot more flexibility than [Option Stores](#option-stores) as you can create watchers within a store and freely use any [composable](https://vuejs.org/guide/reusability/composables.html#composables). However, keep in mind that using composables will get more complex when using SSR.
 
 Setup stores are also able to rely on globally _provided_ properties like the Router or the Route. Any property [provided at the App level](https://vuejs.org/api/application.html#app-provide) can be accessed from the store using `inject()`, just like in components:
 
 ```ts
 import { inject } from 'vue'
 import { useRoute } from 'vue-router'
+import { defineStore } from 'pinia'
 
 export const useSearchFilters = defineStore('search-filters', () => {
   const route = useRoute()
@@ -92,12 +99,12 @@ export const useSearchFilters = defineStore('search-filters', () => {
 ```
 
 :::warning
-Do not return properties like `useRoute()` or `appProvided` (from the example above) as they do not belong to the store itself and you can directly access them within components with `useRoute()` and `inject('appProvided')`.
+Do not return properties like `route` or `appProvided` (from the example above) as they do not belong to the store itself and you can directly access them within components with `useRoute()` and `inject('appProvided')`.
 :::
 
 ## What syntax should I pick?
 
-As with [Vue's Composition API and Options API](https://vuejs.org/guide/introduction.html#which-to-choose), pick the one that you feel the most comfortable with. If you're not sure, try [Option Stores](#option-stores) first.
+As with [Vue's Composition API and Options API](https://vuejs.org/guide/introduction.html#which-to-choose), pick the one that you feel the most comfortable with. Both have their strengths and weaknesses. Options stores are easier to work with while Setup stores are more flexible and powerful. If you want to dive deeper into the differences, check the [Option Stores vs Setup Stores chapter](https://masteringpinia.com/lessons/when-to-choose-one-syntax-over-the-other) in Mastering Pinia.
 
 ## Using the store
 
@@ -125,6 +132,8 @@ Note that `store` is an object wrapped with `reactive`, meaning there is no need
 ```vue
 <script setup>
 import { useCounterStore } from '@/stores/counter'
+import { computed } from 'vue'
+
 const store = useCounterStore()
 // ❌ This won't work because it breaks reactivity
 // it's the same as destructuring from `props`

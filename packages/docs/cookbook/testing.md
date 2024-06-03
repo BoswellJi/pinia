@@ -1,5 +1,10 @@
 # Testing stores
 
+<MasteringPiniaLink
+  href="https://play.gumlet.io/embed/65f9a9c10bfab01f414c25dc"
+  title="Watch a free video of Mastering Pinia about testing stores"
+/>
+
 Stores will, by design, be used at many places and can make testing much harder than it should be. Fortunately, this doesn't have to be the case. We need to take care of three things when testing stores:
 
 - The `pinia` instance: Stores cannot work without it
@@ -59,6 +64,12 @@ beforeEach(() => {
 ```
 
 ## Unit testing components
+
+<!-- NOTE: too long maybe but good value -->
+<!-- <MasteringPiniaLink
+  href="https://play.gumlet.io/embed/6630f540c418f8419b73b2b2?t1=1715867840&t2=1715867570609?preload=false&autoplay=false&loop=false&disable_player_controls=false"
+  title="Watch a free video of Mastering Pinia about testing stores"
+/> -->
 
 This can be achieved with `createTestingPinia()`, which returns a pinia instance designed to help unit tests components.
 
@@ -154,6 +165,55 @@ store.someAction()
 // ...but it's still wrapped with a spy, so you can inspect calls
 expect(store.someAction).toHaveBeenCalledTimes(1)
 ```
+
+### Mocking the returned value of an action
+
+Actions are automatically spied but type-wise, they are still the regular actions. In order to get the correct type, we must implement a custom type-wrapper that is applies the `Mock` type to each action. **This type depends on the testing framework you are using**. Here is an example with Vitest:
+
+```ts
+import type { Mock } from 'vitest'
+import type { Store, StoreDefinition } from 'pinia'
+
+function mockedStore<TStoreDef extends () => unknown>(
+  useStore: TStoreDef
+): TStoreDef extends StoreDefinition<
+  infer Id,
+  infer State,
+  infer Getters,
+  infer Actions
+>
+  ? Store<
+      Id,
+      State,
+      Record<string, never>,
+      {
+        [K in keyof Actions]: Actions[K] extends (
+          ...args: infer Args
+        ) => infer ReturnT
+          ? // 👇 depends on your testing framework
+            Mock<Args, ReturnT>
+          : Actions[K]
+      }
+    > & {
+      [K in keyof Getters]: Getters[K] extends ComputedRef<infer T> ? T : never
+    }
+  : ReturnType<TStoreDef> {
+  return useStore() as any
+}
+```
+
+This can be used in tests to get a correctly typed store:
+
+```ts
+import { mockedStore } from './mockedStore'
+import { useSomeStore } from '@/stores/myStore'
+
+const store = mockedStore(useSomeStore)
+// typed!
+store.someAction.mockResolvedValue('some value')
+```
+
+If you are interesting in learning more tricks like this, you should check out the Testing lessons on [Mastering Pinia](https://masteringpinia.com/lessons/exercise-mocking-stores-introduction).
 
 ### Specifying the createSpy function
 

@@ -556,7 +556,7 @@ export function devtoolsPlugin<
   Id extends string = string,
   S extends StateTree = StateTree,
   G extends object = _GettersTree<S>,
-  A extends object = _ActionsTree
+  A extends object = _ActionsTree,
 >({ app, store, options }: PiniaPluginContext<Id, S, G, A>) {
   // HMR module
   if (store.$id.startsWith('__hot:')) {
@@ -566,21 +566,24 @@ export function devtoolsPlugin<
   // detect option api vs setup api
   store._isOptionsAPI = !!options.state
 
-  patchActionForGrouping(
-    store as StoreGeneric,
-    Object.keys(options.actions),
-    store._isOptionsAPI
-  )
-
-  // Upgrade the HMR to also update the new actions
-  const originalHotUpdate = store._hotUpdate
-  toRaw(store)._hotUpdate = function (newStore) {
-    originalHotUpdate.apply(this, arguments as any)
+  // Do not overwrite actions mocked by @pinia/testing (#2298)
+  if (!store._p._testing) {
     patchActionForGrouping(
       store as StoreGeneric,
-      Object.keys(newStore._hmrPayload.actions),
-      !!store._isOptionsAPI
+      Object.keys(options.actions),
+      store._isOptionsAPI
     )
+
+    // Upgrade the HMR to also update the new actions
+    const originalHotUpdate = store._hotUpdate
+    toRaw(store)._hotUpdate = function (newStore) {
+      originalHotUpdate.apply(this, arguments as any)
+      patchActionForGrouping(
+        store as StoreGeneric,
+        Object.keys(newStore._hmrPayload.actions),
+        !!store._isOptionsAPI
+      )
+    }
   }
 
   addStoreToDevtools(

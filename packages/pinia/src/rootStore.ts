@@ -19,14 +19,12 @@ import {
 } from './types'
 
 /**
- * setActivePinia必须在像fetch,setup,serverPrefetch以及其他方法之上调用来处理ssr
  * setActivePinia must be called to handle SSR at the top of functions like
  * `fetch`, `setup`, `serverPrefetch` and others
  */
 export let activePinia: Pinia | undefined
 
 /**
- * 安装或者卸载pinia,当调用action和getter时会在ssr和内部使用
  * Sets or unsets the active pinia. Used in SSR and internally when calling
  * actions and getters
  *
@@ -42,14 +40,12 @@ interface _SetActivePinia {
 }
 
 /**
- * 获取当前活跃的pinia实例
  * Get the currently active pinia if there is any.
  */
 export const getActivePinia = () =>
   (hasInjectionContext() && inject(piniaSymbol)) || activePinia
 
 /**
- * 每个应用程序必须拥有属性自己的pinia来创建仓库
  * Every application must own its own pinia to be able to create stores
  */
 export interface Pinia {
@@ -108,15 +104,14 @@ export const piniaSymbol = (
 ) as InjectionKey<Pinia>
 
 /**
- * 传递给pinia插件的上下文参数
  * Context argument passed to Pinia plugins.
  */
 export interface PiniaPluginContext<
   Id extends string = string,
   S extends StateTree = StateTree,
   G /* extends _GettersTree<S> */ = _GettersTree<S>,
-  A /* extends _ActionsTree */ = _ActionsTree
-  > {
+  A /* extends _ActionsTree */ = _ActionsTree,
+> {
   /**
    * pinia instance.
    */
@@ -139,7 +134,6 @@ export interface PiniaPluginContext<
 }
 
 /**
- * 扩展每个store的插件
  * Plugin to extend every store.
  */
 export interface PiniaPlugin {
@@ -149,9 +143,9 @@ export interface PiniaPlugin {
    *
    * @param context - Context
    */
-  (context: PiniaPluginContext): Partial<
-    PiniaCustomProperties & PiniaCustomStateProperties
-  > | void
+  (
+    context: PiniaPluginContext
+  ): Partial<PiniaCustomProperties & PiniaCustomStateProperties> | void
 }
 
 /**
